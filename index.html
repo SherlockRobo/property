@@ -1,822 +1,266 @@
-import React, { useState, useEffect } from 'react';
-import { Calculator, Home, DollarSign, Percent, Building2, Save, Plus, Trash2, Info, User, Briefcase, CheckCircle2, Wallet, Banknote, Coins, Eye, EyeOff, TrendingUp, ArrowRight, Scale, LayoutDashboard, LogOut, ArrowRightLeft } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香港房产投资/自住计算器</title>
+    <!-- 引入 Tailwind CSS 用于样式 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 React 和 ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- 引入 Babel 用于解析 JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 引入 Lucide 图标 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .input-group { margin-bottom: 1rem; }
+        .input-label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; }
+        .input-field { width: 100%; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem; font-size: 0.875rem; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-4 md:p-8">
+    <div id="root"></div>
 
-const PropertyCalculator = () => {
-  // 初始默认数据
-  const defaultPresets = [
-    {
-      id: '1',
-      name: "嘉美中心",
-      size: 363,
-      pricePerSqFt: 8722,
-      rentPerSqFt: 38,
-      mgmtFeePerSqFt: 2.34,
-      stampDutyManual: 100,
-      useAutoStampDuty: false,
-      usePersonalAssessment: true, 
-      usageMode: 'self', 
-      legalFee: 6000,
-      agencyFeeManual: 31659.90,
-      loanRate: 3.2, 
-      loanYears: 30,
-      loanRatio: 60, 
-      ratesRate: 5,
-      govRentRate: 3,
-      holdingYears: 3,
-      appreciationRate: 0, 
-    },
-  ];
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
 
-  const [properties, setProperties] = useState(defaultPresets);
-  const [activeId, setActiveId] = useState('1');
-  const [inputs, setInputs] = useState(defaultPresets[0]);
-  const [results, setResults] = useState(null);
-  const [isDirty, setIsDirty] = useState(false);
-  const [showFormulas, setShowFormulas] = useState(true); // Default to true based on user request
-  const [activeTab, setActiveTab] = useState("holding"); 
-
-  useEffect(() => {
-    const savedData = localStorage.getItem('hk_prop_calc_data_v17');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        if (parsed && parsed.length > 0) {
-          setProperties(parsed);
-          setInputs(parsed[0]);
-          setActiveId(parsed[0].id);
-        }
-      } catch (e) {
-        console.error("Failed to load saved data");
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('hk_prop_calc_data_v17', JSON.stringify(properties));
-  }, [properties]);
-
-  const loadProperty = (id) => {
-    const prop = properties.find(p => p.id === id);
-    if (prop) {
-      setActiveId(id);
-      setInputs({ ...prop });
-      setIsDirty(false);
-    }
-  };
-
-  const handleAddProperty = () => {
-    const newId = Date.now().toString();
-    const newProp = { ...inputs, id: newId, name: `${inputs.name} (复制)` };
-    const newProperties = [...properties, newProp];
-    setProperties(newProperties);
-    setActiveId(newId);
-    setInputs(newProp);
-    setIsDirty(false);
-  };
-
-  const handleSave = () => {
-    const updatedProperties = properties.map(p => p.id === activeId ? inputs : p);
-    setProperties(updatedProperties);
-    setIsDirty(false);
-  };
-
-  const handleDelete = () => {
-    if (properties.length <= 1) {
-      alert("至少保留一个房产数据");
-      return;
-    }
-    const newProps = properties.filter(p => p.id !== activeId);
-    setProperties(newProps);
-    setActiveId(newProps[0].id);
-    setInputs(newProps[0]);
-    setIsDirty(false);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setInputs(prev => ({
-      ...prev,
-      [name]: name === 'name' ? value : (parseFloat(value) || 0)
-    }));
-    setIsDirty(true);
-  };
-
-  const handleSliderChange = (name, val) => {
-     setInputs(prev => ({ ...prev, [name]: val }));
-     setIsDirty(true);
-  }
-
-  const toggleStampDutyMode = (checked) => {
-    setInputs(prev => ({ ...prev, useAutoStampDuty: checked }));
-    setIsDirty(true);
-  };
-
-  const togglePAMode = (checked) => {
-    setInputs(prev => ({ ...prev, usePersonalAssessment: checked }));
-    setIsDirty(true);
-  };
-  
-  const setUsageMode = (mode) => {
-    setInputs(prev => ({ ...prev, usageMode: mode }));
-    setIsDirty(true);
-  }
-
-  const calculateGovStampDuty = (price) => {
-    if (price <= 3000000) return 100;
-    if (price <= 3528240) return 100 + (price - 3000000) * 0.10;
-    if (price <= 4500000) return price * 0.015;
-    if (price <= 4935480) return 67500 + (price - 4500000) * 0.10;
-    if (price <= 6000000) return price * 0.0225;
-    if (price <= 6642860) return 135000 + (price - 6000000) * 0.10;
-    if (price <= 9000000) return price * 0.03;
-    if (price <= 10080000) return 270000 + (price - 9000000) * 0.10;
-    if (price <= 20000000) return price * 0.0375;
-    if (price <= 21739120) return 750000 + (price - 20000000) * 0.10;
-    return price * 0.0425;
-  };
-
-  useEffect(() => {
-    const {
-      size, pricePerSqFt, rentPerSqFt, mgmtFeePerSqFt,
-      stampDutyManual, useAutoStampDuty, usePersonalAssessment, usageMode,
-      legalFee, agencyFeeManual,
-      loanRate, loanYears, loanRatio,
-      ratesRate, govRentRate,
-      holdingYears, appreciationRate
-    } = inputs;
-
-    const price = size * pricePerSqFt;
-    const monthlyMarketRent = size * rentPerSqFt; 
-    const annualMarketRent = monthlyMarketRent * 12;
-    const monthlyMgmtFee = size * mgmtFeePerSqFt;
-    const mgmtFeeYear = monthlyMgmtFee * 12;
-
-    const calculatedStampDuty = calculateGovStampDuty(price);
-    const finalStampDuty = useAutoStampDuty ? calculatedStampDuty : stampDutyManual;
-
-    const ratesYear = annualMarketRent * (ratesRate / 100);
-    const govRentYear = annualMarketRent * (govRentRate / 100);
-    
-    // --- 贷款计算 ---
-    const loanAmount = price * (loanRatio / 100);
-    const monthlyRate = (loanRate / 100) / 12;
-    const totalMonths = loanYears * 12;
-    
-    let monthlyPayment = 0;
-    if (monthlyRate > 0) {
-      monthlyPayment = loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
-    } else {
-      monthlyPayment = loanAmount / totalMonths;
-    }
-    const annualPayment = monthlyPayment * 12;
-    const totalRepayment = monthlyPayment * totalMonths;
-    const totalInterestFullTerm = totalRepayment - loanAmount;
-
-    // 第一年数据
-    let totalInterest1stYear = 0;
-    let currentBal = loanAmount;
-    for(let i=0; i<12; i++){
-        const interest = currentBal * monthlyRate;
-        totalInterest1stYear += interest;
-        currentBal = currentBal - (monthlyPayment - interest);
-    }
-    const principal1stYear = annualPayment - totalInterest1stYear;
-
-    // --- 模拟持有期数据 (Projection) ---
-    let sim_remainingLoan = loanAmount;
-    let sim_totalInterestPaid = 0;
-    let sim_totalPrincipalPaid = 0;
-    
-    for(let m=0; m < holdingYears * 12; m++) {
-        const interest = sim_remainingLoan * monthlyRate;
-        const principal = monthlyPayment - interest;
-        sim_totalInterestPaid += interest;
-        sim_totalPrincipalPaid += principal;
-        sim_remainingLoan -= principal;
-    }
-
-    // 模拟 N 年后的房价与卖出
-    const futurePrice = price * Math.pow(1 + appreciationRate / 100, holdingYears);
-    const sellingAgencyFee = futurePrice * 0.01; 
-    const sellingLegalFee = 6000; 
-    const sellingCostTotal = sellingAgencyFee + sellingLegalFee;
-    
-    const netProceedsFromSale = futurePrice - sim_remainingLoan - sellingCostTotal;
-
-    const downPayment = price * (1 - loanRatio / 100);
-    const initialCashOut = downPayment + finalStampDuty + legalFee + agencyFeeManual;
-
-    const total_capital_profit = netProceedsFromSale - initialCashOut;
-
-    // --- 1. 自住模式运营收益 ---
-    const self_annual_holding_cost = mgmtFeeYear + ratesYear + govRentYear;
-    const self_total_tax_save = Math.min(sim_totalInterestPaid, 100000 * holdingYears) * 0.15; 
-    const self_operating_profit = (annualMarketRent * holdingYears) - (self_annual_holding_cost * holdingYears) - sim_totalInterestPaid + self_total_tax_save;
-    const self_total_profit = self_operating_profit + total_capital_profit;
-    const self_roi_annualized = initialCashOut > 0 ? (Math.pow((self_total_profit + initialCashOut) / initialCashOut, 1/holdingYears) - 1) * 100 : 0;
-
-    // --- 2. 出租模式运营收益 ---
-    const rent_annual_assessable = Math.max(0, annualMarketRent - ratesYear);
-    const rent_annual_net_assessable = rent_annual_assessable * 0.8;
-    
-    let rent_total_tax = 0;
-    if (usePersonalAssessment) {
-        const taxable = Math.max(0, (rent_annual_net_assessable * holdingYears) - sim_totalInterestPaid);
-        rent_total_tax = taxable * 0.15;
-    } else {
-        rent_total_tax = (rent_annual_net_assessable * holdingYears) * 0.15;
-    }
-
-    const rent_operating_profit = (annualMarketRent * holdingYears) - (self_annual_holding_cost * holdingYears) - sim_totalInterestPaid - rent_total_tax;
-    const rent_total_profit = rent_operating_profit + total_capital_profit;
-    const rent_roi_annualized = initialCashOut > 0 ? (Math.pow((rent_total_profit + initialCashOut) / initialCashOut, 1/holdingYears) - 1) * 100 : 0;
-
-    // 单期数据
-    let propertyTax = 0;
-    let salaryTaxSave = 0;
-    if (usageMode === 'rent') {
-       const assessableValue = Math.max(0, annualMarketRent - ratesYear);
-       const netAssessableValue = assessableValue * 0.8;
-       if (usePersonalAssessment) {
-          const taxableAmountPA = Math.max(0, netAssessableValue - totalInterest1stYear);
-          propertyTax = taxableAmountPA * 0.15;
-       } else {
-          propertyTax = netAssessableValue * 0.15;
-       }
-    } else {
-       const deductibleInterest = Math.min(totalInterest1stYear, 100000);
-       salaryTaxSave = deductibleInterest * 0.15; 
-    }
-    const holdingCost = ratesYear + govRentYear + mgmtFeeYear + propertyTax;
-    
-    const ncf_rent_mode = annualMarketRent - holdingCost - annualPayment;
-    const true_living_cost_year = totalInterest1stYear + holdingCost - salaryTaxSave;
-    const true_living_cost_month = true_living_cost_year / 12;
-    const cash_outflow_monthly = monthlyPayment + monthlyMgmtFee + (ratesYear + govRentYear)/12;
-    const cash_flow_diff_monthly = monthlyMarketRent - cash_outflow_monthly;
-    const save_vs_renting_year = annualMarketRent - true_living_cost_year;
-    const save_vs_renting_month = save_vs_renting_year / 12;
-    const roi_cash_save_self = initialCashOut > 0 ? (save_vs_renting_year / initialCashOut) * 100 : 0;
-    const roi_total_wealth_self = initialCashOut > 0 ? ((save_vs_renting_year + principal1stYear) / initialCashOut) * 100 : 0;
-    
-    // Monthly Real Cost (Burn Rate)
-    const monthly_buy_burn = (totalInterest1stYear + holdingCost - salaryTaxSave) / 12;
-    const monthly_rent_burn = monthlyMarketRent;
-
-    setResults({
-      price, monthlyMarketRent, annualMarketRent, monthlyMgmtFee, mgmtFeeYear,
-      finalStampDuty, calculatedStampDuty, ratesYear, govRentYear, propertyTax, salaryTaxSave,
-      initialExpenses: initialCashOut, downPayment, loanAmount, annualPayment, monthlyPayment,
-      ncf_rent_mode, holdingCost,
-      principal1stYear, totalInterest1stYear,
-      legalFee, agencyFeeManual,
-      true_living_cost_year, true_living_cost_month,
-      save_vs_renting_year, save_vs_renting_month,
-      cash_outflow_monthly, cash_flow_diff_monthly,
-      totalRepayment, totalInterestFullTerm,
-      roi_cash_save_self, roi_total_wealth_self,
-      // 模拟数据
-      futurePrice, sim_remainingLoan, netProceedsFromSale, sellingCostTotal,
-      self_total_profit, self_roi_annualized, self_operating_profit, 
-      rent_total_profit, rent_roi_annualized, rent_operating_profit,
-      total_capital_profit, sim_totalPrincipalPaid,
-      monthly_buy_burn, monthly_rent_burn
-    });
-
-  }, [inputs]);
-
-  const formatMoney = (val) => val?.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  const formatPct = (val) => val?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
-  
-  const Formula = ({ text }) => (
-     showFormulas ? <div className="text-[10px] text-slate-400 font-mono mt-0.5">{text}</div> : null
-  );
-
-  return (
-    <div className="max-w-6xl mx-auto p-4 space-y-4 bg-slate-50 min-h-screen">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-          <Building2 className="w-8 h-8 text-blue-600" />
-          香港房产计算器
-        </h1>
-        <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border shadow-sm">
-           <Switch id="show-formulas" checked={showFormulas} onCheckedChange={setShowFormulas} className="scale-75" />
-           <Label htmlFor="show-formulas" className="text-xs text-slate-600 cursor-pointer flex items-center gap-1">
-             {showFormulas ? <Eye className="w-3 h-3"/> : <EyeOff className="w-3 h-3"/>}
-             显示公式
-           </Label>
-        </div>
-      </div>
-
-      {/* 房产列表栏 */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {properties.map(p => (
-          <Button 
-            key={p.id}
-            variant={activeId === p.id ? "default" : "outline"}
-            onClick={() => loadProperty(p.id)}
-            className={`whitespace-nowrap min-w-[100px] ${activeId === p.id ? 'border-blue-600' : ''}`}
-          >
-            {p.name}
-          </Button>
-        ))}
-        <Button variant="ghost" size="icon" onClick={handleAddProperty} title="复制当前并新增">
-          <Plus className="w-5 h-5 text-blue-600" />
-        </Button>
-      </div>
-
-      {/* 操作栏 */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border flex flex-col md:flex-row gap-4 items-end md:items-center justify-between">
-        <div className="w-full md:w-1/3 space-y-1">
-          <Label className="text-xs text-slate-500">房产名称</Label>
-          <div className="flex gap-2">
-            <Input 
-              name="name" 
-              value={inputs.name} 
-              onChange={handleInputChange} 
-              className="font-bold text-lg h-10"
-            />
-          </div>
-        </div>
-        <div className="flex gap-2 w-full md:w-auto">
-           <Button 
-            onClick={handleSave} 
-            disabled={!isDirty}
-            className={`flex-1 md:flex-none gap-2 ${isDirty ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-400'}`}
-          >
-            <Save className="w-4 h-4" /> 
-            {isDirty ? '保存修改' : '已保存'}
-          </Button>
-          
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="icon" disabled={properties.length <= 1}>
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>确认删除?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  这将永久删除 "{inputs.name}" 的数据，无法恢复。
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>取消</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} className="bg-red-600">删除</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        // --- 模拟 UI 组件 ---
+        const Card = ({ children, className = "" }) => <div className={`bg-white rounded-lg border shadow-sm ${className}`}>{children}</div>;
         
-        {/* 左侧：输入区域 (占 5/12) */}
-        <div className="lg:col-span-5 space-y-4">
-          {/* 模式选择 */}
-          <div className="bg-white p-1 rounded-lg border shadow-sm flex">
-              <button 
-                onClick={() => setUsageMode('rent')}
-                className={`flex-1 py-2 text-sm font-medium rounded-md flex items-center justify-center gap-2 transition-all ${inputs.usageMode === 'rent' ? 'bg-blue-100 text-blue-700 shadow-sm' : 'text-slate-500 hover:bg-slate-50'}`}
-              >
-                <Briefcase className="w-4 h-4" /> 投资收租
-              </button>
-              <button 
-                onClick={() => setUsageMode('self')}
-                className={`flex-1 py-2 text-sm font-medium rounded-md flex items-center justify-center gap-2 transition-all ${inputs.usageMode === 'self' ? 'bg-orange-100 text-orange-700 shadow-sm' : 'text-slate-500 hover:bg-slate-50'}`}
-              >
-                <User className="w-4 h-4" /> 自住 (Buy to Live)
-              </button>
-          </div>
+        // --- 核心计算器组件 ---
+        function HKPropertyCalculator() {
+            // 1. 输入状态管理
+            const [inputs, setInputs] = useState({
+                price: 8000000,          // 房价
+                area: 500,               // 尺数
+                monthlyMarketRent: 20000,// 市场租金
+                monthlyMgmtFee: 1500,    // 管理费
+                mortgageRate: 4.125,     // 利率 %
+                loanPercent: 90,         // 按揭成数 %
+                years: 30,               // 年限
+                usageMode: 'self',       // 'rent' (出租) 或 'self' (自住)
+                usePersonalAssessment: false // 是否使用个人入息课税
+            });
 
-          <Card className="border-l-4 border-l-blue-500 shadow-sm">
-            <CardHeader className="pb-3 bg-slate-50/50">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Home className="w-4 h-4" /> 核心数据
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4 pt-4">
-              <div className="space-y-1">
-                <Label className="text-blue-700">建筑面积 (尺)</Label>
-                <Input name="size" type="number" value={inputs.size} onChange={handleInputChange} className="font-bold" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-blue-700">平均尺价 (HKD)</Label>
-                <Input name="pricePerSqFt" type="number" value={inputs.pricePerSqFt} onChange={handleInputChange} className="font-bold" />
-              </div>
-              <div className="col-span-2 bg-blue-50 p-3 rounded-md flex justify-between items-center">
-                <div>
-                  <span className="text-sm text-blue-600">计算总房价:</span>
-                  <Formula text={`${inputs.size}尺 × $${inputs.pricePerSqFt}/尺`} />
-                </div>
-                <span className="text-xl font-bold text-blue-900">${formatMoney(results?.price)}</span>
-              </div>
-            </CardContent>
-          </Card>
+            // 2. 核心计算逻辑 (复刻截图中的逻辑)
+            const results = useMemo(() => {
+                const { price, monthlyMarketRent, monthlyMgmtFee, mortgageRate, years, usageMode, loanPercent } = inputs;
+                
+                // 基础数据
+                const annualMarketRent = monthlyMarketRent * 12;
+                const downPayment = price * (1 - loanPercent / 100);
+                const loanAmount = price * (loanPercent / 100);
+                
+                // 简化的印花税计算 (Scale 2 估算)
+                let stampDuty = 0;
+                if (price <= 3000000) stampDuty = 100;
+                else if (price <= 3528240) stampDuty = 100 + (price - 3000000) * 0.1; // 这里的公式仅为简化示例，实际需按最新税表
+                else if (price <= 4500000) stampDuty = price * 0.015;
+                else if (price <= 6000000) stampDuty = price * 0.0225;
+                else if (price <= 9000000) stampDuty = price * 0.03;
+                else if (price <= 20000000) stampDuty = price * 0.0375;
+                else stampDuty = price * 0.0425;
 
-          <Card className="shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <DollarSign className="w-4 h-4" /> 
-                {inputs.usageMode === 'rent' ? '租金收入' : '市场租金 (对比用)'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>预估尺租 (HKD)</Label>
-                <Input name="rentPerSqFt" type="number" value={inputs.rentPerSqFt} onChange={handleInputChange} />
-              </div>
-              <div className="space-y-1">
-                <Label>管理费/尺 (HKD)</Label>
-                <Input name="mgmtFeePerSqFt" type="number" value={inputs.mgmtFeePerSqFt} onChange={handleInputChange} />
-              </div>
-              <div className="col-span-2 grid grid-cols-2 gap-4 bg-slate-100 p-2 rounded text-sm">
-                <div>
-                  <span className="text-slate-500 block">月租金</span>
-                  <span className="font-bold">${formatMoney(results?.monthlyMarketRent)}</span>
-                  <Formula text={`${inputs.size}尺 × $${inputs.rentPerSqFt}`} />
-                </div>
-                <div>
-                  <span className="text-slate-500 block">月管理费</span>
-                  <span className="font-bold">${formatMoney(results?.monthlyMgmtFee)}</span>
-                  <Formula text={`${inputs.size}尺 × $${inputs.mgmtFeePerSqFt}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                // 初始支出
+                const agencyFee = price * 0.01; // 1% 佣金
+                const legalFee = 10000; // 估算律师费
+                const initialCashOut = downPayment + stampDuty + agencyFee + legalFee;
 
-          <Card className="shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Calculator className="w-4 h-4" /> 交易成本 & 税务
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2 border p-3 rounded bg-slate-50">
-                <div className="flex justify-between items-center">
-                  <Label>印花税 (HKD)</Label>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="auto-stamp" className="text-xs text-slate-500">自动计算(Scale 2)</Label>
-                    <Switch 
-                      id="auto-stamp" 
-                      checked={inputs.useAutoStampDuty} 
-                      onCheckedChange={toggleStampDutyMode}
-                    />
-                  </div>
-                </div>
-                {inputs.useAutoStampDuty ? (
-                  <div className="text-lg font-bold text-slate-700 bg-white border px-3 py-2 rounded">
-                    ${formatMoney(results?.calculatedStampDuty)}
-                    <Formula text={`Scale 2 累进税率 (房价 $${formatMoney(results?.price)})`} />
-                  </div>
-                ) : (
-                  <Input name="stampDutyManual" type="number" value={inputs.stampDutyManual} onChange={handleInputChange} />
-                )}
-              </div>
+                // 按揭计算 (月供)
+                const r = mortgageRate / 100 / 12;
+                const n = years * 12;
+                const monthlyPayment = loanAmount > 0 ? (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : 0;
+                const annualPayment = monthlyPayment * 12;
 
-              {inputs.usageMode === 'rent' ? (
-                <div className="space-y-2 border border-green-200 bg-green-50 p-3 rounded">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="pa-mode" className="text-green-800 font-medium text-xs">个人入息课税 (抵扣利息)</Label>
-                    </div>
-                    <Switch 
-                      id="pa-mode" 
-                      checked={inputs.usePersonalAssessment} 
-                      onCheckedChange={togglePAMode}
-                      className="data-[state=checked]:bg-green-600 scale-75"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2 border border-orange-200 bg-orange-50 p-3 rounded">
-                  <div className="flex items-center gap-2 mb-1">
-                    <CheckCircle2 className="w-4 h-4 text-orange-600" />
-                    <span className="text-sm font-bold text-orange-800">自住税务优势</span>
-                  </div>
-                  <ul className="text-[10px] text-orange-700 space-y-1 list-disc pl-4">
-                    <li>免交物业税</li>
-                    <li>居所贷款利息扣除 (Salary Tax Deduction)</li>
-                  </ul>
-                </div>
-              )}
+                // 第一年利息 (估算)
+                const totalInterest1stYear = loanAmount * (mortgageRate / 100); 
+                // 注意：实际利息是逐月递减的，这里为了简化逻辑取首年近似值，或你可以写更复杂的 amortization
+                
+                // 杂费 (差饷地租估算为租值的5%)
+                const ratesYear = annualMarketRent * 0.05; 
+                const mgmtFeeYear = monthlyMgmtFee * 12;
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label>律师费/杂费</Label>
-                  <Input name="legalFee" type="number" value={inputs.legalFee} onChange={handleInputChange} />
-                </div>
-                <div className="space-y-1">
-                  <Label>佣金 (负数=返佣)</Label>
-                  <Input name="agencyFeeManual" type="number" value={inputs.agencyFeeManual} onChange={handleInputChange} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                // --- 税务与核心逻辑 (你截图里的重点) ---
+                let propertyTax = 0;
+                let salaryTaxSave = 0;
 
-          <Card className="shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Percent className="w-4 h-4" /> 贷款设置
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-3 gap-2">
-              <div className="space-y-1">
-                <Label className="text-xs">成数(%)</Label>
-                <Input name="loanRatio" type="number" value={inputs.loanRatio} onChange={handleInputChange} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">年利率(%)</Label>
-                <Input name="loanRate" type="number" value={inputs.loanRate} onChange={handleInputChange} />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">年期</Label>
-                <Input name="loanYears" type="number" value={inputs.loanYears} onChange={handleInputChange} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                if (usageMode === 'rent') {
+                    // 出租模式：计算物业税
+                    const assessableValue = Math.max(0, annualMarketRent - ratesYear); // 扣除差饷
+                    const netAssessableValue = assessableValue * 0.8; // 20% 修缮免税额
+                    propertyTax = netAssessableValue * 0.15; // 15% 物业税
+                } else {
+                    // 自住模式：计算利息抵扣省下的税
+                    // 假设最高扣除 100,000
+                    const deductibleInterest = Math.min(totalInterest1stYear, 100000);
+                    salaryTaxSave = deductibleInterest * 0.15; // 假设边际税率 15%
+                }
 
-        {/* 右侧：结果区域 (占 7/12) - 使用 Tabs 分离场景 */}
-        <div className="lg:col-span-7">
-          <div className="flex bg-slate-200 p-1 rounded-lg mb-4">
-              <button 
-                 onClick={() => setActiveTab('holding')}
-                 className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-md transition-all ${activeTab === 'holding' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                 <LayoutDashboard className="w-4 h-4" /> 持有分析 (Holding)
-              </button>
-              <button 
-                 onClick={() => setActiveTab('exit')}
-                 className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-md transition-all ${activeTab === 'exit' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                 <LogOut className="w-4 h-4" /> 卖房推演 (Exit Strategy)
-              </button>
-          </div>
+                const holdingCost = ratesYear + mgmtFeeYear + propertyTax; // 持有成本
+                
+                // 真实居住成本 (Burn Rate)
+                // 公式：利息 + 持有杂费 - 省下的税
+                const true_living_cost_year = totalInterest1stYear + holdingCost - salaryTaxSave;
+                const true_living_cost_month = true_living_cost_year / 12;
 
-          {/* TAB 1: 持有分析 */}
-          {activeTab === 'holding' && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              {/* 1. 首期资金明细 */}
-              <Card className="bg-blue-50 border-blue-200 shadow-sm">
-                <CardHeader className="pb-2">
-                   <CardTitle className="text-base flex items-center gap-2 text-blue-800">
-                     <Coins className="w-5 h-5" /> 1. 首期资金准备 (Entry Cost)
-                   </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between items-end border-b border-blue-200 pb-2">
-                     <span className="text-sm text-blue-600 font-medium">需准备现金总额</span>
-                     <span className="text-2xl font-bold text-blue-900">${formatMoney(results?.initialExpenses)}</span>
-                  </div>
-                  {/* 展开明细 */}
-                  <div className="space-y-1 text-sm pt-1">
-                    <div className="flex justify-between text-slate-600">
-                      <span>首付 ({100 - inputs.loanRatio}%)</span>
-                      <span className="font-medium">${formatMoney(results?.downPayment)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>印花税</span>
-                      <span className="font-medium">${formatMoney(results?.finalStampDuty)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>代理佣金</span>
-                      <span className="font-medium">${formatMoney(results?.agencyFeeManual)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>律师费/杂费</span>
-                      <span className="font-medium">${formatMoney(results?.legalFee)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                // 现金流出
+                const cash_outflow_monthly = monthlyPayment + monthlyMgmtFee + (ratesYear / 12);
 
-              {/* 2. 月度现金流明细 (Split View) */}
-              <Card className="shadow-sm border border-slate-200">
-                <CardHeader className="pb-2 border-b bg-slate-100">
-                   <CardTitle className="text-base flex items-center gap-2 text-slate-700">
-                     <Wallet className="w-4 h-4" /> 2. 月度现金流 (Monthly Cashflow)
-                   </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-3">
-                   <div className="grid grid-cols-2 gap-4">
-                      {/* 左侧：买房现金流 */}
-                      <div className="space-y-2">
-                         <div className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">买房支出 (Buy)</div>
-                         <div className="text-xl font-bold text-red-600">-${formatMoney(results?.cash_outflow_monthly)}</div>
-                         <div className="text-xs text-slate-500 space-y-1 border-l-2 border-blue-100 pl-2">
-                            <div>
-                               <div className="flex justify-between"><span>供楼(本+息)</span><span>${formatMoney(results?.monthlyPayment)}</span></div>
+                // 买房 vs 租房 节省金额
+                // 如果我不买，我就要付 annualMarketRent。买了之后，我的真实消耗是 true_living_cost_year。
+                const save_vs_renting_year = annualMarketRent - true_living_cost_year;
+                const save_vs_renting_month = save_vs_renting_year / 12;
+
+                return {
+                    price,
+                    initialCashOut,
+                    monthlyPayment,
+                    true_living_cost_month,
+                    save_vs_renting_month,
+                    save_vs_renting_year,
+                    cash_outflow_monthly,
+                    stampDuty
+                };
+            }, [inputs]);
+
+            // 格式化金额
+            const formatMoney = (val) => val?.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+            return (
+                <div className="max-w-5xl mx-auto space-y-6">
+                    <header className="flex items-center gap-2 mb-6">
+                        <h1 className="text-2xl font-bold text-slate-800">🇭🇰 香港房产计算器 (修复版)</h1>
+                    </header>
+
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        {/* 左侧：输入区域 (占 5/12) */}
+                        <div className="md:col-span-5 space-y-4">
+                            <Card className="p-4 space-y-4">
+                                {/* 模式选择 */}
+                                <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-lg">
+                                    <button 
+                                        onClick={() => setInputs({...inputs, usageMode: 'rent'})}
+                                        className={`py-2 text-sm font-medium rounded-md transition-all ${inputs.usageMode === 'rent' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                    >
+                                        出租投资 (Rent)
+                                    </button>
+                                    <button 
+                                        onClick={() => setInputs({...inputs, usageMode: 'self'})}
+                                        className={`py-2 text-sm font-medium rounded-md transition-all ${inputs.usageMode === 'self' ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                    >
+                                        自住 (Self)
+                                    </button>
+                                </div>
+
+                                {/* 核心输入 */}
+                                <div>
+                                    <label className="input-label">房价 (HKD)</label>
+                                    <input 
+                                        type="number" 
+                                        className="input-field"
+                                        value={inputs.price}
+                                        onChange={e => setInputs({...inputs, price: Number(e.target.value)})}
+                                    />
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="input-label">按揭成数 (%)</label>
+                                        <input 
+                                            type="number" 
+                                            className="input-field"
+                                            value={inputs.loanPercent}
+                                            onChange={e => setInputs({...inputs, loanPercent: Number(e.target.value)})}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="input-label">年利率 (%)</label>
+                                        <input 
+                                            type="number" 
+                                            className="input-field"
+                                            value={inputs.mortgageRate}
+                                            onChange={e => setInputs({...inputs, mortgageRate: Number(e.target.value)})}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="input-label">{inputs.usageMode === 'rent' ? '预计租金收入' : '同类房源市场租金'} (HKD)</label>
+                                    <input 
+                                        type="number" 
+                                        className="input-field"
+                                        value={inputs.monthlyMarketRent}
+                                        onChange={e => setInputs({...inputs, monthlyMarketRent: Number(e.target.value)})}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="input-label">月管理费 (HKD)</label>
+                                    <input 
+                                        type="number" 
+                                        className="input-field"
+                                        value={inputs.monthlyMgmtFee}
+                                        onChange={e => setInputs({...inputs, monthlyMgmtFee: Number(e.target.value)})}
+                                    />
+                                </div>
+                            </Card>
+                        </div>
+
+                        {/* 右侧：结果区域 (占 7/12) */}
+                        <div className="md:col-span-7 space-y-4">
+                            {/* 你的截图中的橙色/蓝色结果卡片 */}
+                            <div className={`p-4 rounded-lg border grid grid-cols-2 gap-4 ${inputs.usageMode === 'self' ? 'bg-orange-50 border-orange-100' : 'bg-blue-50 border-blue-100'}`}>
+                                <div>
+                                    <div className={`text-xs font-medium mb-1 ${inputs.usageMode === 'self' ? 'text-orange-900' : 'text-blue-900'}`}>
+                                        每月节省 (相比租房)
+                                    </div>
+                                    <div className={`text-2xl font-bold ${inputs.usageMode === 'self' ? 'text-orange-700' : 'text-blue-700'}`}>
+                                        {results.save_vs_renting_month > 0 ? '+' : ''}${formatMoney(results.save_vs_renting_month)}
+                                    </div>
+                                </div>
+                                <div className={`pl-4 border-l ${inputs.usageMode === 'self' ? 'border-orange-200' : 'border-blue-200'}`}>
+                                    <div className={`text-xs font-medium mb-1 ${inputs.usageMode === 'self' ? 'text-orange-900' : 'text-blue-900'}`}>
+                                        每年累积节省
+                                    </div>
+                                    <div className={`text-2xl font-bold ${inputs.usageMode === 'self' ? 'text-orange-700' : 'text-blue-700'}`}>
+                                        {results.save_vs_renting_year > 0 ? '+' : ''}${formatMoney(results.save_vs_renting_year)}
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                               <div className="flex justify-between"><span>管理费</span><span>${formatMoney(results?.monthlyMgmtFee)}</span></div>
-                               <Formula text={`${inputs.size}尺 × $${inputs.mgmtFeePerSqFt}`} />
+                            
+                            <div className="text-[10px] text-slate-400 text-right">
+                                * 正数代表买房比租房多攒下的净资产（已扣除利息消耗）
                             </div>
-                            <div>
-                               <div className="flex justify-between"><span>差响/地租</span><span>${formatMoney((results?.ratesYear + results?.govRentYear)/12)}</span></div>
-                               <Formula text={`($${formatMoney(results?.annualMarketRent)} × ${inputs.ratesRate+inputs.govRentRate}%) ÷ 12`} />
-                            </div>
-                         </div>
-                      </div>
 
-                      {/* 右侧：租房现金流 */}
-                      <div className="space-y-2 border-l pl-4">
-                         <div className="text-xs font-bold text-green-800 uppercase tracking-wider mb-1">租房支出 (Rent)</div>
-                         <div className="text-xl font-bold text-red-600">-${formatMoney(results?.monthlyMarketRent)}</div>
-                         <div className="text-xs text-slate-500 space-y-1 border-l-2 border-green-100 pl-2">
-                            <div className="flex justify-between"><span>纯租金</span><span>${formatMoney(results?.monthlyMarketRent)}</span></div>
-                            <Formula text={`${inputs.size}尺 × $${inputs.rentPerSqFt}`} />
-                            <div className="flex justify-between opacity-50"><span>杂费</span><span>$0</span></div>
-                         </div>
-                      </div>
-                   </div>
-                   
-                   {/* 底部对比 */}
-                   <div className="bg-slate-50 p-3 rounded-lg border flex items-center justify-between mt-2">
-                      <div className="text-sm font-medium text-slate-600">现金流对比结果:</div>
-                      <div className={`font-bold text-lg ${results?.cash_flow_diff_monthly >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                         {results?.cash_flow_diff_monthly >= 0 ? '买房手头更松' : '租房手头更松'} ${formatMoney(Math.abs(results?.cash_flow_diff_monthly))}
-                      </div>
-                   </div>
-                </CardContent>
-              </Card>
+                            {/* 详细数据列表 */}
+                            <Card className="divide-y divide-slate-100">
+                                <div className="p-3 flex justify-between items-center">
+                                    <span className="text-sm text-slate-600">首期支出 (含印花税/佣金)</span>
+                                    <span className="font-mono font-medium">${formatMoney(results.initialCashOut)}</span>
+                                </div>
+                                <div className="p-3 flex justify-between items-center">
+                                    <span className="text-sm text-slate-600">每月供款 (本+息)</span>
+                                    <span className="font-mono font-medium">${formatMoney(results.monthlyPayment)}</span>
+                                </div>
+                                <div className="p-3 flex justify-between items-center bg-slate-50">
+                                    <span className="text-sm text-slate-600">每月真实消耗 (利息+杂费-税惠)</span>
+                                    <span className="font-mono font-bold text-red-500">-${formatMoney(results.true_living_cost_month)}</span>
+                                </div>
+                                <div className="p-3 flex justify-between items-center opacity-75">
+                                    <span className="text-sm text-slate-600">对比：市场租金支出</span>
+                                    <span className="font-mono text-slate-900">-${formatMoney(inputs.monthlyMarketRent)}</span>
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
-              {/* 3. 长期财富账本 (Split View) */}
-              <Card className="shadow-sm border-t-4 border-t-orange-400">
-                <CardHeader className="pb-2 border-b bg-slate-50">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                     <Banknote className="w-5 h-5" /> 3. 长期财富账本 (Real Cost View)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 space-y-4">
-                   
-                   <div className="grid grid-cols-2 gap-4">
-                      {/* 左侧：买房真实消耗 */}
-                      <div className="space-y-2">
-                         <div className="text-xs font-bold text-orange-800 uppercase tracking-wider mb-1">买房真实消耗 (Burn)</div>
-                         <div className="text-xl font-bold text-orange-700">-${formatMoney(results?.monthly_buy_burn)}</div>
-                         <div className="text-xs text-slate-500 space-y-1 border-l-2 border-orange-100 pl-2">
-                            <div className="flex justify-between"><span>利息(扔水里)</span><span className="text-red-500">-${formatMoney(results?.totalInterest1stYear / 12)}</span></div>
-                            <div className="flex justify-between"><span>杂费</span><span className="text-red-500">-${formatMoney((results?.monthlyMgmtFee*12 + results?.ratesYear + results?.govRentYear)/12)}</span></div>
-                            <div className="flex justify-between"><span>税收抵扣</span><span className="text-green-600">+${formatMoney(results?.salaryTaxSave / 12)}</span></div>
-                            <div className="flex justify-between pt-1 border-t border-dashed text-indigo-600 font-bold"><span>本金(强制储蓄)</span><span>${formatMoney(results?.monthlyPayment - results?.totalInterest1stYear/12)}</span></div>
-                         </div>
-                      </div>
-
-                      {/* 右侧：租房真实消耗 */}
-                      <div className="space-y-2 border-l pl-4">
-                         <div className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">租房真实消耗 (Burn)</div>
-                         <div className="text-xl font-bold text-orange-700">-${formatMoney(results?.monthly_rent_burn)}</div>
-                         <div className="text-xs text-slate-500 space-y-1 border-l-2 border-slate-200 pl-2">
-                            <div className="flex justify-between"><span>租金(扔水里)</span><span className="text-red-500">-${formatMoney(results?.monthlyMarketRent)}</span></div>
-                            <div className="flex justify-between opacity-50"><span>储蓄</span><span>$0</span></div>
-                         </div>
-                      </div>
-                   </div>
-
-                   <div className="bg-orange-50 p-3 rounded-lg border border-orange-100 grid grid-cols-2 gap-4">
-                      <div>
-                         <div className="text-xs font-medium text-orange-900 mb-1">每月积累 (Monthly)</div>
-                         <div className="text-xl font-bold text-orange-700">+${formatMoney(results?.save_vs_renting_month)}</div>
-                      </div>
-                      <div className="border-l border-orange-200 pl-4">
-                         <div className="text-xs font-medium text-orange-900 mb-1">每年积累 (Yearly)</div>
-                         <div className="text-xl font-bold text-orange-700">+${formatMoney(results?.save_vs_renting_year)}</div>
-                      </div>
-                   </div>
-                   <div className="text-[10px] text-slate-400 text-right">* 正数代表买房比租房多攒下的净资产</div>
-
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* TAB 2: 卖房推演 */}
-          {activeTab === 'exit' && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-               <Card className="shadow-sm border-2 border-indigo-600 overflow-hidden">
-                <CardHeader className="pb-3 bg-indigo-600 text-white">
-                   <CardTitle className="text-lg flex items-center gap-2">
-                     <Scale className="w-5 h-5" /> 退出策略与模式对比
-                   </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-6">
-                   
-                   {/* 模拟设置 */}
-                   <div className="bg-indigo-50 p-3 rounded-lg space-y-4">
-                      <div className="flex justify-between items-center">
-                         <Label className="text-indigo-900 font-bold">假设持有年限: {inputs.holdingYears} 年</Label>
-                      </div>
-                      <Slider 
-                        defaultValue={[inputs.holdingYears]} 
-                        max={30} 
-                        min={1} 
-                        step={1} 
-                        onValueChange={(val) => handleSliderChange('holdingYears', val[0])}
-                        className="py-2"
-                      />
-                      
-                      <div className="flex justify-between items-center pt-2">
-                         <Label className="text-indigo-900 font-bold">假设每年房价涨幅: {inputs.appreciationRate}%</Label>
-                      </div>
-                      <Slider 
-                        defaultValue={[inputs.appreciationRate]} 
-                        max={10} 
-                        min={-10} 
-                        step={0.5} 
-                        onValueChange={(val) => handleSliderChange('appreciationRate', val[0])}
-                        className="py-2"
-                      />
-                      <div className="text-xs text-indigo-600 text-right">
-                         {inputs.holdingYears}年后房价预测: ${formatMoney(results?.futurePrice)}
-                      </div>
-                   </div>
-
-                   {/* 对比表格 */}
-                   <div className="border rounded-lg overflow-hidden">
-                      <div className="grid grid-cols-3 bg-slate-100 p-2 text-xs font-bold text-slate-600 text-center">
-                         <div className="text-left pl-2">项目 ({inputs.holdingYears}年总计)</div>
-                         <div className="text-orange-700">自住模式 (Self)</div>
-                         <div className="text-blue-700">出租模式 (Rent)</div>
-                      </div>
-
-                      {/* 运营收益 */}
-                      <div className="grid grid-cols-3 p-2 text-sm border-b">
-                         <div className="text-slate-600 pl-2 flex flex-col justify-center">
-                            <span className="font-bold">运营净收益</span>
-                            <span className="text-[10px] text-slate-400">租金/省租 - 支出 - 利息</span>
-                         </div>
-                         <div className="text-center font-medium text-orange-700 flex items-center justify-center">
-                            ${formatMoney(results?.self_operating_profit)}
-                         </div>
-                         <div className="text-center font-medium text-blue-700 flex items-center justify-center">
-                            ${formatMoney(results?.rent_operating_profit)}
-                         </div>
-                      </div>
-
-                      {/* 资本利得 (修正后) */}
-                      <div className="grid grid-cols-3 p-2 text-sm border-b bg-slate-50/50">
-                         <div className="text-slate-600 pl-2 flex flex-col justify-center">
-                            <span className="font-bold">资本利得 (卖房)</span>
-                            <span className="text-[10px] text-slate-400">涨幅 + <span className="text-indigo-600 font-bold">已还本金</span> - 交易成本</span>
-                         </div>
-                         <div className="col-span-2 text-center font-medium text-slate-700 flex items-center justify-center">
-                            ${formatMoney(results?.total_capital_profit)}
-                         </div>
-                      </div>
-                      
-                      {/* 补充说明本金部分 */}
-                      <div className="grid grid-cols-3 p-1 text-[10px] text-slate-400 border-b bg-slate-50/30">
-                         <div className="text-right pr-2 col-span-1">其中已还本金:</div>
-                         <div className="col-span-2 text-center text-indigo-600 font-medium">
-                            +${formatMoney(results?.sim_totalPrincipalPaid)}
-                         </div>
-                      </div>
-
-                      {/* 总利润 */}
-                      <div className="grid grid-cols-3 p-3 bg-slate-100 font-bold text-base">
-                         <div className="pl-2 flex items-center">总利润 (P&L)</div>
-                         <div className={`text-center ${results?.self_total_profit > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            ${formatMoney(results?.self_total_profit)}
-                         </div>
-                         <div className={`text-center ${results?.rent_total_profit > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            ${formatMoney(results?.rent_total_profit)}
-                         </div>
-                      </div>
-
-                      {/* 年化回报率 */}
-                      <div className="grid grid-cols-3 p-2 bg-indigo-900 text-white text-sm">
-                         <div className="pl-2 flex items-center">年化回报率 (IRR)</div>
-                         <div className="text-center font-bold text-lg">
-                            {formatPct(results?.self_roi_annualized)}
-                         </div>
-                         <div className="text-center font-bold text-lg">
-                            {formatPct(results?.rent_roi_annualized)}
-                         </div>
-                      </div>
-                   </div>
-
-                   <div className="text-[11px] text-slate-500 space-y-1 bg-slate-50 p-2 rounded">
-                      <p className="flex items-start gap-1"><CheckCircle2 className="w-3 h-3 mt-0.5 text-green-600"/> <b>修正说明</b>：此版本已将“已偿还本金”计入卖房收益。你在供楼时偿还的本金，在卖房还清贷款后会回到你手中，这是强制储蓄，不是消费。</p>
-                   </div>
-
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PropertyCalculator;
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<HKPropertyCalculator />);
+    </script>
+</body>
+</html>
