@@ -1,9 +1,17 @@
+没问题。对于投资收租来说，**回报率（Yield）**是最核心的指标。
+我在代码中增加了以下三个关键回报率指标的计算：
+
+表面回报率 (Gross Yield): 年租金 ÷ 房价（中介通常报这个）
+净回报率 (Net Yield): (年租金 - 管理费 - 差响地租) ÷ 房价（扣除持有成本，不含贷款）
+现金回报率 (Cash on Cash): (年租金 - 持有成本 - 年供款) ÷ 首期现金投入（这是最真实的“以此房养房”的投资效率，考虑了杠杆）
+
+请完整复制下面的代码，覆盖原来的 calc.html 文件即可：
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>香港房产计算器 (增强版)</title>
+    <title>香港房产计算器 (投资回报增强版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -46,7 +54,8 @@
             Banknote: (p) => <Icon {...p} path={<><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></>} />,
             Scale: (p) => <Icon {...p} path={<><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></>} />,
             Eye: (p) => <Icon {...p} path={<><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></>} />,
-            EyeOff: (p) => <Icon {...p} path={<><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></>} />
+            EyeOff: (p) => <Icon {...p} path={<><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></>} />,
+            TrendingUp: (p) => <Icon {...p} path={<><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>} />
         };
 
         // --- 2. 基础 UI 组件 ---
@@ -269,6 +278,13 @@
                 const cash_flow_diff_monthly = monthlyMarketRent - cash_outflow_monthly;
                 const save_vs_renting_year = annualMarketRent - (totalInterest1stYear + holdingCost - salaryTaxSave);
                 
+                // --- 回报率计算 ---
+                const annualOperatingExpenses = mgmtFeeYear + ratesYear + govRentYear;
+                const grossYield = price > 0 ? (annualMarketRent / price) * 100 : 0;
+                const netYield = price > 0 ? ((annualMarketRent - annualOperatingExpenses) / price) * 100 : 0;
+                // Cash on Cash: (年租金 - 运营杂费 - 年供款) / 首期投入
+                const cashOnCash = initialCashOut > 0 ? ((annualMarketRent - annualOperatingExpenses - annualPayment) / initialCashOut) * 100 : 0;
+
                 setResults({
                     price, monthlyMarketRent, annualMarketRent, monthlyMgmtFee, mgmtFeeYear,
                     finalStampDuty, calculatedStampDuty, ratesYear, govRentYear, propertyTax, salaryTaxSave,
@@ -281,7 +297,9 @@
                     rent_total_profit, rent_roi_annualized, rent_operating_profit,
                     total_capital_profit, sim_totalPrincipalPaid,
                     monthly_buy_burn: (totalInterest1stYear + holdingCost - salaryTaxSave) / 12,
-                    monthly_rent_burn: monthlyMarketRent
+                    monthly_rent_burn: monthlyMarketRent,
+                    // 新增回报率
+                    grossYield, netYield, cashOnCash
                 });
             }, [inputs]);
 
@@ -351,6 +369,23 @@
                                         <div><span className="text-slate-500 block">月租金</span><span className="font-bold">${formatMoney(results?.monthlyMarketRent)}</span></div>
                                         <div><span className="text-slate-500 block">月管理费</span><span className="font-bold">${formatMoney(results?.monthlyMgmtFee)}</span></div>
                                     </div>
+                                    {/* 新增：投资回报率展示区 (仅在收租模式下显示) */}
+                                    {inputs.usageMode === 'rent' && (
+                                        <div className="col-span-2 mt-2 pt-3 border-t border-dashed border-slate-300 grid grid-cols-3 gap-2 text-center">
+                                            <div className="bg-blue-50 rounded p-1">
+                                                <div className="text-[10px] text-slate-500">表面回报 (Gross)</div>
+                                                <div className="text-sm font-bold text-blue-700">{formatPct(results?.grossYield)}</div>
+                                            </div>
+                                            <div className="bg-blue-50 rounded p-1">
+                                                <div className="text-[10px] text-slate-500">净回报 (Net)</div>
+                                                <div className="text-sm font-bold text-blue-700">{formatPct(results?.netYield)}</div>
+                                            </div>
+                                            <div className="bg-green-50 rounded p-1">
+                                                <div className="text-[10px] text-slate-500">现金回报 (CoC)</div>
+                                                <div className="text-sm font-bold text-green-700">{formatPct(results?.cashOnCash)}</div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
 
@@ -384,7 +419,6 @@
                                         <div className="space-y-1"><Label className="text-xs">年利率(%)</Label><Input name="loanRate" type="number" value={inputs.loanRate} onChange={handleInputChange} /></div>
                                         <div className="space-y-1"><Label className="text-xs">年期</Label><Input name="loanYears" type="number" value={inputs.loanYears} onChange={handleInputChange} /></div>
                                     </div>
-                                    {/* 新增：贷款详情展示区 */}
                                     <div className="bg-slate-100 p-3 rounded text-sm space-y-2">
                                         <div className="flex justify-between"><span className="text-slate-600">贷款金额</span><span className="font-bold text-slate-900">${formatMoney(results?.loanAmount)}</span></div>
                                         <div className="flex justify-between"><span className="text-slate-600">全期利息</span><span className="font-bold text-slate-900">${formatMoney(results?.totalInterestFullTerm)}</span></div>
