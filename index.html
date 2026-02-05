@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>香港房产计算器 (买租博弈完整版)</title>
+    <title>香港房产计算器 (自住回报增强版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -46,8 +46,7 @@
             Banknote: (p) => <Icon {...p} path={<><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></>} />,
             Scale: (p) => <Icon {...p} path={<><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></>} />,
             Eye: (p) => <Icon {...p} path={<><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></>} />,
-            EyeOff: (p) => <Icon {...p} path={<><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></>} />,
-            ArrowRightLeft: (p) => <Icon {...p} path={<><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></>} />
+            EyeOff: (p) => <Icon {...p} path={<><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></>} />
         };
 
         // --- 2. 基础 UI 组件 ---
@@ -112,8 +111,7 @@
                 id: '1', name: "嘉美中心", size: 363, pricePerSqFt: 8722, rentPerSqFt: 38, mgmtFeePerSqFt: 2.34,
                 stampDutyManual: 100, useAutoStampDuty: false, usePersonalAssessment: true, usageMode: 'self', 
                 legalFee: 6000, agencyFeeManual: 31659.90, loanRate: 3.2, loanYears: 30, loanRatio: 60, 
-                ratesRate: 5, govRentRate: 3, holdingYears: 3, appreciationRate: 0,
-                riskFreeRate: 3.5 // 新增：无风险利率
+                ratesRate: 5, govRentRate: 3, holdingYears: 3, appreciationRate: 0, 
             }];
 
             const [properties, setProperties] = useState(defaultPresets);
@@ -125,7 +123,7 @@
             const [activeTab, setActiveTab] = useState("holding"); 
 
             useEffect(() => {
-                const savedData = localStorage.getItem('hk_prop_calc_data_v18'); // Updated version key
+                const savedData = localStorage.getItem('hk_prop_calc_data_v17');
                 if (savedData) {
                     try {
                         const parsed = JSON.parse(savedData);
@@ -138,7 +136,7 @@
                 }
             }, []);
 
-            useEffect(() => { localStorage.setItem('hk_prop_calc_data_v18', JSON.stringify(properties)); }, [properties]);
+            useEffect(() => { localStorage.setItem('hk_prop_calc_data_v17', JSON.stringify(properties)); }, [properties]);
 
             const loadProperty = (id) => {
                 const prop = properties.find(p => p.id === id);
@@ -186,7 +184,7 @@
             };
 
             useEffect(() => {
-                const { size, pricePerSqFt, rentPerSqFt, mgmtFeePerSqFt, stampDutyManual, useAutoStampDuty, usePersonalAssessment, usageMode, legalFee, agencyFeeManual, loanRate, loanYears, loanRatio, ratesRate, govRentRate, holdingYears, appreciationRate, riskFreeRate } = inputs;
+                const { size, pricePerSqFt, rentPerSqFt, mgmtFeePerSqFt, stampDutyManual, useAutoStampDuty, usePersonalAssessment, usageMode, legalFee, agencyFeeManual, loanRate, loanYears, loanRatio, ratesRate, govRentRate, holdingYears, appreciationRate } = inputs;
 
                 const price = size * pricePerSqFt;
                 const monthlyMarketRent = size * rentPerSqFt; 
@@ -275,12 +273,10 @@
                 const annualOperatingExpenses = mgmtFeeYear + ratesYear + govRentYear;
                 const grossYield = price > 0 ? (annualMarketRent / price) * 100 : 0;
                 const netYield = price > 0 ? ((annualMarketRent - annualOperatingExpenses) / price) * 100 : 0;
+                // Cash on Cash: (年租金 - 运营杂费 - 年供款) / 首期投入
                 const cashOnCash = initialCashOut > 0 ? ((annualMarketRent - annualOperatingExpenses - annualPayment) / initialCashOut) * 100 : 0;
+                // 自住资金回报 (Wealth ROE): 每年相比租房省下的钱(含税优) / 首期投入
                 const wealthROE = initialCashOut > 0 ? (save_vs_renting_year / initialCashOut) * 100 : 0;
-
-                // --- 机会成本比较 (Rent vs Buy) ---
-                const riskFreeIncomeYear = initialCashOut * (riskFreeRate / 100);
-                const buyVsRentNetGain = save_vs_renting_year - riskFreeIncomeYear;
 
                 setResults({
                     price, monthlyMarketRent, annualMarketRent, monthlyMgmtFee, mgmtFeeYear,
@@ -296,9 +292,7 @@
                     monthly_buy_burn: (totalInterest1stYear + holdingCost - salaryTaxSave) / 12,
                     monthly_rent_burn: monthlyMarketRent,
                     // 回报率
-                    grossYield, netYield, cashOnCash, wealthROE,
-                    // 机会成本
-                    riskFreeIncomeYear, buyVsRentNetGain
+                    grossYield, netYield, cashOnCash, wealthROE
                 });
             }, [inputs]);
 
@@ -374,17 +368,14 @@
                                             <div className="bg-blue-50 rounded p-1">
                                                 <div className="text-[10px] text-slate-500">表面回报 (Gross)</div>
                                                 <div className="text-sm font-bold text-blue-700">{formatPct(results?.grossYield)}</div>
-                                                <div className="text-[9px] text-slate-400 scale-90">年租金 ÷ 房价</div>
                                             </div>
                                             <div className="bg-blue-50 rounded p-1">
                                                 <div className="text-[10px] text-slate-500">净回报 (Net)</div>
                                                 <div className="text-sm font-bold text-blue-700">{formatPct(results?.netYield)}</div>
-                                                <div className="text-[9px] text-slate-400 scale-90">(租金-杂费)÷房价</div>
                                             </div>
                                             <div className="bg-green-50 rounded p-1">
                                                 <div className="text-[10px] text-slate-500">现金回报 (CoC)</div>
                                                 <div className="text-sm font-bold text-green-700">{formatPct(results?.cashOnCash)}</div>
-                                                <div className="text-[9px] text-slate-400 scale-90">净现金流 ÷ 首期</div>
                                             </div>
                                         </div>
                                     ) : (
@@ -392,12 +383,10 @@
                                             <div className="bg-orange-50 rounded p-1">
                                                 <div className="text-[10px] text-slate-500">隐性租金回报 (Imputed)</div>
                                                 <div className="text-sm font-bold text-orange-700">{formatPct(results?.grossYield)}</div>
-                                                <div className="text-[9px] text-slate-400 mt-0.5">年市值租金 ÷ 房价</div>
                                             </div>
                                             <div className="bg-orange-50 rounded p-1">
                                                 <div className="text-[10px] text-slate-500">资金利用回报 (ROE)</div>
                                                 <div className="text-sm font-bold text-orange-700">{formatPct(results?.wealthROE)}</div>
-                                                <div className="text-[9px] text-slate-400 mt-0.5">(租金-真实消耗) ÷ 首期</div>
                                             </div>
                                         </div>
                                     )}
@@ -451,47 +440,6 @@
 
                             {activeTab === 'holding' && (
                                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    {/* 新增：买房 vs 租房+理财 决策模块 */}
-                                    {inputs.usageMode === 'self' && (
-                                        <Card className="shadow-sm border-2 border-purple-500 overflow-hidden">
-                                            <CardHeader className="pb-3 bg-purple-600 text-white"><CardTitle className="text-lg flex items-center gap-2"><Icons.ArrowRightLeft className="w-5 h-5" /> 终极决策: 买房 vs (租房+理财)</CardTitle></CardHeader>
-                                            <CardContent className="pt-4 space-y-4">
-                                                <div className="bg-purple-50 p-3 rounded-lg flex items-center justify-between">
-                                                    <div className="space-y-1">
-                                                        <Label className="text-purple-900 font-bold">无风险理财利率 (定存/美债)</Label>
-                                                        <div className="text-xs text-purple-600">如果你不买房，首付资金能赚多少利息？</div>
-                                                    </div>
-                                                    <div className="w-24"><Input type="number" value={inputs.riskFreeRate || 3.5} onChange={(e) => {setInputs(p=>({...p, riskFreeRate:parseFloat(e.target.value)})); setIsDirty(true)}} className="text-right font-bold text-purple-700" /></div>
-                                                </div>
-                                                
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div className="border rounded-lg p-3 bg-white space-y-2 relative overflow-hidden">
-                                                        <div className="text-xs font-bold text-slate-500 uppercase">方案 A: 买房自住</div>
-                                                        <div className="text-2xl font-bold text-slate-800">+${formatMoney(results?.save_vs_renting_year)}</div>
-                                                        <div className="text-xs text-slate-500">
-                                                            年财富增值 (相比租房)<br/>
-                                                            <span className="scale-90 block mt-1 text-slate-400">= 省下的房租 - (利息+杂费-税优)</span>
-                                                        </div>
-                                                        {results?.buyVsRentNetGain > 0 && <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] px-2 py-1 font-bold">赢家</div>}
-                                                    </div>
-                                                    <div className="border rounded-lg p-3 bg-white space-y-2 relative overflow-hidden">
-                                                        <div className="text-xs font-bold text-slate-500 uppercase">方案 B: 租房 + 理财</div>
-                                                        <div className="text-2xl font-bold text-slate-800">+${formatMoney(results?.riskFreeIncomeYear)}</div>
-                                                        <div className="text-xs text-slate-500">
-                                                            年理财收益<br/>
-                                                            <span className="scale-90 block mt-1 text-slate-400">= 首付现金 ${formatMoney(results?.initialExpenses)} × {inputs.riskFreeRate}%</span>
-                                                        </div>
-                                                        {results?.buyVsRentNetGain <= 0 && <div className="absolute top-0 right-0 bg-green-500 text-white text-[10px] px-2 py-1 font-bold">赢家</div>}
-                                                    </div>
-                                                </div>
-
-                                                <div className={`p-3 rounded-lg text-center font-bold text-lg border ${results?.buyVsRentNetGain > 0 ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
-                                                    结论: {results?.buyVsRentNetGain > 0 ? '买房更划算' : '租房+理财更划算'} (年差额 ${formatMoney(Math.abs(results?.buyVsRentNetGain))})
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    )}
-
                                     <Card className="bg-blue-50 border-blue-200 shadow-sm">
                                         <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2 text-blue-800"><Icons.Coins className="w-5 h-5" /> 1. 首期资金准备</CardTitle></CardHeader>
                                         <CardContent className="space-y-3">
@@ -605,3 +553,14 @@
                                     </Card>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<PropertyCalculator />);
+    </script>
+</body>
+</html>
