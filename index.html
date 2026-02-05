@@ -1,18 +1,9 @@
-这是一个**绝对完整、无需配置、双击即用**的版本。
-
-我修复了所有可能导致报错的问题，并将所有代码合并到了一个文件中。你只需要做一步：
-
-1.  新建一个文本文件，重命名为 **`calc.html`**
-2.  将下面的代码**完整复制**进去，保存。
-3.  用浏览器（Chrome, Edge, Safari 均可）打开它。
-
-```html
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>香港房产计算器 (最终完整版)</title>
+    <title>香港房产计算器 (增强版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -387,10 +378,18 @@
 
                             <Card className="shadow-sm">
                                 <CardHeader className="pb-3"><CardTitle className="text-lg flex items-center gap-2"><Icons.Percent className="w-4 h-4" /> 贷款设置</CardTitle></CardHeader>
-                                <CardContent className="grid grid-cols-3 gap-2">
-                                    <div className="space-y-1"><Label className="text-xs">成数(%)</Label><Input name="loanRatio" type="number" value={inputs.loanRatio} onChange={handleInputChange} /></div>
-                                    <div className="space-y-1"><Label className="text-xs">年利率(%)</Label><Input name="loanRate" type="number" value={inputs.loanRate} onChange={handleInputChange} /></div>
-                                    <div className="space-y-1"><Label className="text-xs">年期</Label><Input name="loanYears" type="number" value={inputs.loanYears} onChange={handleInputChange} /></div>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <div className="space-y-1"><Label className="text-xs">成数(%)</Label><Input name="loanRatio" type="number" value={inputs.loanRatio} onChange={handleInputChange} /></div>
+                                        <div className="space-y-1"><Label className="text-xs">年利率(%)</Label><Input name="loanRate" type="number" value={inputs.loanRate} onChange={handleInputChange} /></div>
+                                        <div className="space-y-1"><Label className="text-xs">年期</Label><Input name="loanYears" type="number" value={inputs.loanYears} onChange={handleInputChange} /></div>
+                                    </div>
+                                    {/* 新增：贷款详情展示区 */}
+                                    <div className="bg-slate-100 p-3 rounded text-sm space-y-2">
+                                        <div className="flex justify-between"><span className="text-slate-600">贷款金额</span><span className="font-bold text-slate-900">${formatMoney(results?.loanAmount)}</span></div>
+                                        <div className="flex justify-between"><span className="text-slate-600">全期利息</span><span className="font-bold text-slate-900">${formatMoney(results?.totalInterestFullTerm)}</span></div>
+                                        <div className="flex justify-between border-t border-slate-300 pt-2"><span className="text-slate-600">本息总额</span><span className="font-bold text-slate-900">${formatMoney(results?.totalRepayment)}</span></div>
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>
@@ -527,4 +526,3 @@
     </script>
 </body>
 </html>
-```
