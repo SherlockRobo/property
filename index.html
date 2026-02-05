@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>香港房产计算器 (FCF预测 & 敏感度分析版)</title>
+    <title>香港房产计算器 (专业财务报表版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -108,36 +108,36 @@
             />
         );
 
-        // --- 3. 辅助组件：带解释的行 ---
+        // --- 3. 辅助组件：带解释的行 (专业版) ---
         const TermRow = ({ label, selfValue, rentValue, desc, isHeader = false, isTotal = false, isSubTotal = false, colorClass="text-slate-700" }) => {
             const [showDesc, setShowDesc] = useState(false);
             
             if (isHeader) {
                 return (
-                    <div className="grid grid-cols-10 gap-2 bg-slate-100 p-2 text-xs font-bold text-slate-600 text-center rounded-t-lg">
-                        <div className="col-span-4 text-left pl-2">{label}</div>
-                        <div className="col-span-3 text-orange-700">自住模式</div>
-                        <div className="col-span-3 text-blue-700">出租模式</div>
+                    <div className="grid grid-cols-10 gap-2 bg-slate-50 p-2 text-xs font-bold text-slate-500 border-b">
+                        <div className="col-span-4 text-left pl-2">项目</div>
+                        <div className="col-span-3 text-center text-orange-700">自住模式</div>
+                        <div className="col-span-3 text-center text-blue-700">出租模式</div>
                     </div>
                 );
             }
 
             return (
                 <div className={`border-b border-slate-100 last:border-0 transition-colors ${showDesc ? 'bg-indigo-50/50' : ''}`}>
-                    <div className={`grid grid-cols-10 gap-2 p-2 text-sm items-center ${isTotal ? 'bg-slate-100 font-bold text-base py-3' : ''} ${isSubTotal ? 'bg-slate-50 font-semibold' : ''}`}>
+                    <div className={`grid grid-cols-10 gap-2 p-2 text-sm items-center ${isTotal ? 'bg-slate-100 font-bold text-base py-3' : ''} ${isSubTotal ? 'bg-slate-50 font-bold text-slate-800' : ''}`}>
                         <div className="col-span-4 pl-2 flex items-center gap-1">
                             <span className={colorClass}>{label}</span>
                             {desc && (
-                                <button onClick={() => setShowDesc(!showDesc)} className="text-slate-400 hover:text-indigo-600 transition-colors">
+                                <button onClick={() => setShowDesc(!showDesc)} className="text-slate-300 hover:text-indigo-600 transition-colors">
                                     <Icons.HelpCircle className="w-3.5 h-3.5" />
                                 </button>
                             )}
                         </div>
-                        <div className={`col-span-3 text-center ${isTotal ? (parseFloat(selfValue?.replace(/,/g,'')) > 0 ? 'text-green-600' : 'text-red-600') : 'text-slate-600'}`}>
-                           {selfValue === '-' ? '-' : `$${selfValue}`}
+                        <div className={`col-span-3 text-center ${isTotal ? (parseFloat(selfValue?.replace(/[^0-9.-]/g,'')) > 0 ? 'text-green-600' : 'text-red-600') : 'text-slate-600'}`}>
+                           {selfValue === '-' ? '-' : `${selfValue}`}
                         </div>
-                        <div className={`col-span-3 text-center ${isTotal ? (parseFloat(rentValue?.replace(/,/g,'')) > 0 ? 'text-green-600' : 'text-red-600') : 'text-slate-600'}`}>
-                            {rentValue === '-' ? '-' : `$${rentValue}`}
+                        <div className={`col-span-3 text-center ${isTotal ? (parseFloat(rentValue?.replace(/[^0-9.-]/g,'')) > 0 ? 'text-green-600' : 'text-red-600') : 'text-slate-600'}`}>
+                            {rentValue === '-' ? '-' : `${rentValue}`}
                         </div>
                     </div>
                     {showDesc && (
@@ -167,12 +167,11 @@
             const [activeTab, setActiveTab] = useState("holding"); 
 
             useEffect(() => {
-                const savedData = localStorage.getItem('hk_prop_calc_data_v19'); // Updated version
+                const savedData = localStorage.getItem('hk_prop_calc_data_v20_pro');
                 if (savedData) {
                     try {
                         const parsed = JSON.parse(savedData);
                         if (parsed && parsed.length > 0) {
-                            // Migration for old data lacking agencyFeeRate or rentGrowthRate
                             const migrated = parsed.map(p => ({
                                 ...p,
                                 agencyFeeRate: p.agencyFeeRate ?? 1.0,
@@ -186,7 +185,7 @@
                 }
             }, []);
 
-            useEffect(() => { localStorage.setItem('hk_prop_calc_data_v19', JSON.stringify(properties)); }, [properties]);
+            useEffect(() => { localStorage.setItem('hk_prop_calc_data_v20_pro', JSON.stringify(properties)); }, [properties]);
 
             const loadProperty = (id) => {
                 const prop = properties.find(p => p.id === id);
@@ -343,14 +342,15 @@
                 // Sensitivity Matrix Calculation
                 const sensitivityRates = [-20, -10, 0, 10, 20];
                 const sensitivityData = sensitivityRates.map(rate => {
-                    const s_futurePrice = price * Math.pow(1 + rate / 100, holdingYears); // Simple total appreciation not CAGR for simplicity of "What if price drops 20%"
+                    const s_futurePrice = price * Math.pow(1 + rate / 100, holdingYears); // Simple total appreciation
                     const s_sellingCost = (s_futurePrice * 0.01) + 6000;
                     const s_capital_profit = (s_futurePrice - price) - (buyingCostTotal + s_sellingCost);
                     
                     const s_rent_profit = rent_operating_profit + s_capital_profit;
                     const s_roi = initialCashOut > 0 ? (Math.pow((s_rent_profit + initialCashOut) / initialCashOut, 1/holdingYears) - 1) * 100 : 0;
+                    const s_total_return_pct = initialCashOut > 0 ? (s_rent_profit / initialCashOut) * 100 : 0;
                     
-                    return { rate, price: s_futurePrice, profit: s_rent_profit, roi: s_roi };
+                    return { rate, price: s_futurePrice, profit: s_rent_profit, roi: s_roi, returnPct: s_total_return_pct };
                 });
 
 
@@ -597,27 +597,52 @@
                                             {/* 敏感性分析矩阵 */}
                                             <div className="border rounded-lg overflow-hidden">
                                                 <div className="bg-slate-800 text-white p-2 text-sm font-bold text-center">房价敏感度压力测试 ({inputs.holdingYears}年后)</div>
-                                                <div className="grid grid-cols-4 bg-slate-100 p-2 text-xs font-bold text-slate-600 text-center">
+                                                <div className="grid grid-cols-5 bg-slate-100 p-2 text-xs font-bold text-slate-600 text-center">
                                                     <div>涨幅</div>
                                                     <div>卖出价</div>
                                                     <div>净利润</div>
+                                                    <div>总回报%</div>
                                                     <div>年化(IRR)</div>
                                                 </div>
                                                 {results?.sensitivityData.map((row, idx) => (
-                                                    <div key={idx} className={`grid grid-cols-4 p-2 text-xs text-center border-t border-slate-100 ${row.rate === 0 ? 'bg-indigo-50 font-bold' : ''}`}>
+                                                    <div key={idx} className={`grid grid-cols-5 p-2 text-xs text-center border-t border-slate-100 ${row.rate === 0 ? 'bg-indigo-50 font-bold' : ''}`}>
                                                         <div className={`${row.rate > 0 ? 'text-green-600' : 'text-red-600'}`}>{row.rate > 0 ? '+' : ''}{row.rate}%</div>
                                                         <div className="text-slate-600">${formatMoney(row.price)}</div>
                                                         <div className={`${row.profit > 0 ? 'text-green-600' : 'text-red-600'}`}>${formatMoney(row.profit)}</div>
+                                                        <div className={`${row.returnPct > 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPct(row.returnPct)}</div>
                                                         <div className={`${row.roi > 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPct(row.roi)}</div>
                                                     </div>
                                                 ))}
                                             </div>
 
                                             <div className="border rounded-lg overflow-hidden mt-4">
-                                                <div className="bg-slate-100 p-2 text-xs font-bold text-slate-600 text-center">当前设定详情分析</div>
-                                                <TermRow label="总利润 (A+B)" isTotal selfValue={formatMoney(results?.self_total_profit)} rentValue={formatMoney(results?.rent_total_profit)} desc="最终落袋的钱。" />
-                                                <TermRow label="A. 资本账 (买卖)" isSubTotal selfValue={formatMoney(results?.total_capital_profit)} rentValue={formatMoney(results?.total_capital_profit)} desc="仅计算买卖房产本身的盈亏。" />
-                                                <TermRow label="B. 运营账 (持有)" isSubTotal selfValue={formatMoney(results?.self_operating_profit)} rentValue={formatMoney(results?.rent_operating_profit)} desc="持有期间现金流总和。" />
+                                                <TermRow isHeader />
+                                                
+                                                {/* A. 资本账 */}
+                                                <TermRow label="A. 资本账 (买卖)" isSubTotal selfValue={formatMoney(results?.total_capital_profit)} rentValue={formatMoney(results?.total_capital_profit)} desc="买卖房产本身的盈亏 (价差 - 摩擦成本)" />
+                                                <TermRow label="• 账面升值" colorClass="text-slate-500 pl-2" selfValue={formatMoney(results?.capital_appreciation)} rentValue={formatMoney(results?.capital_appreciation)} />
+                                                <TermRow label="• 摩擦成本" colorClass="text-red-500 pl-2" selfValue={`-${formatMoney(results?.capital_friction_cost)}`} rentValue={`-${formatMoney(results?.capital_friction_cost)}`} />
+                                                
+                                                {/* B. 运营账 */}
+                                                <TermRow label="B. 运营账 (持有)" isSubTotal selfValue={formatMoney(results?.self_operating_profit)} rentValue={formatMoney(results?.rent_operating_profit)} desc="持有期间现金流总和 (租金 - 支出)" />
+                                                <TermRow label="• 租金收益" colorClass="text-green-600 pl-2" selfValue={formatMoney(results?.self_rental_benefit)} rentValue={formatMoney(results?.rent_total_income)} />
+                                                <TermRow label="• 持有成本" colorClass="text-red-500 pl-2" selfValue={`-${formatMoney(results?.self_total_holding_cost)}`} rentValue={`-${formatMoney(results?.self_total_holding_cost)}`} />
+                                                <TermRow label="• 银行利息" colorClass="text-red-500 pl-2" selfValue={`-${formatMoney(results?.sim_totalInterestPaid)}`} rentValue={`-${formatMoney(results?.sim_totalInterestPaid)}`} />
+                                                <TermRow label="• 税务影响" colorClass="text-slate-500 pl-2" selfValue={`+${formatMoney(results?.self_total_tax_save)}`} rentValue={`-${formatMoney(results?.rent_total_tax)}`} />
+                                                
+                                                {/* 总计 */}
+                                                <div className="grid grid-cols-10 gap-2 p-3 bg-slate-50 font-bold border-t">
+                                                    <div className="col-span-4 pl-2 text-slate-800">总利润 (A+B)</div>
+                                                    <div className={`col-span-3 text-center ${results?.self_total_profit > 0 ? 'text-green-600' : 'text-red-600'}`}>${formatMoney(results?.self_total_profit)}</div>
+                                                    <div className={`col-span-3 text-center ${results?.rent_total_profit > 0 ? 'text-green-600' : 'text-red-600'}`}>${formatMoney(results?.rent_total_profit)}</div>
+                                                </div>
+
+                                                {/* IRR Footer */}
+                                                <div className="grid grid-cols-10 gap-2 p-4 bg-indigo-900 text-white font-bold text-lg">
+                                                    <div className="col-span-4 pl-2 flex items-center gap-2">年化回报 (IRR)</div>
+                                                    <div className="col-span-3 text-center">{formatPct(results?.self_roi_annualized)}</div>
+                                                    <div className="col-span-3 text-center">{formatPct(results?.rent_roi_annualized)}</div>
+                                                </div>
                                             </div>
                                         </CardContent>
                                     </Card>
