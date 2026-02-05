@@ -37,4 +37,600 @@
             Plus: (p) => <Icon {...p} path={<><path d="M5 12h14"/><path d="M12 5v14"/></>} />,
             Trash2: (p) => <Icon {...p} path={<><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></>} />,
             User: (p) => <Icon {...p} path={<><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>} />,
-            Briefcase: (p) => <Icon {...p} path={<><rect width="
+            Briefcase: (p) => <Icon {...p} path={<><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></>} />,
+            CheckCircle2: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></>} />,
+            LayoutDashboard: (p) => <Icon {...p} path={<><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></>} />,
+            LogOut: (p) => <Icon {...p} path={<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></>} />,
+            Coins: (p) => <Icon {...p} path={<><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 8.49a4 4 0 0 0 0-5.66Z"/></>} />,
+            Wallet: (p) => <Icon {...p} path={<><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></>} />,
+            Banknote: (p) => <Icon {...p} path={<><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></>} />,
+            Scale: (p) => <Icon {...p} path={<><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></>} />,
+            Eye: (p) => <Icon {...p} path={<><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></>} />,
+            EyeOff: (p) => <Icon {...p} path={<><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></>} />,
+            HelpCircle: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></>} />,
+            TrendingUp: (p) => <Icon {...p} path={<><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>} />,
+            Target: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>} />
+        };
+
+        // --- 2. 基础 UI 组件 ---
+        const Card = ({ children, className = "" }) => <div className={`bg-white rounded-lg border shadow-sm ${className}`}>{children}</div>;
+        const CardHeader = ({ children, className = "" }) => <div className={`p-6 pb-2 ${className}`}>{children}</div>;
+        const CardTitle = ({ children, className = "" }) => <h3 className={`font-semibold leading-none tracking-tight ${className}`}>{children}</h3>;
+        const CardContent = ({ children, className = "" }) => <div className={`p-6 pt-0 ${className}`}>{children}</div>;
+        const Label = ({ children, className = "", htmlFor }) => <label htmlFor={htmlFor} className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}>{children}</label>;
+        
+        const Input = ({ className = "", ...props }) => (
+            <input className={`flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
+        );
+
+        const Button = ({ children, variant = "default", size = "default", className = "", ...props }) => {
+            const variants = {
+                default: "bg-slate-900 text-white hover:bg-slate-900/90",
+                destructive: "bg-red-500 text-white hover:bg-red-500/90",
+                outline: "border border-slate-200 bg-white hover:bg-slate-100 text-slate-900",
+                ghost: "hover:bg-slate-100 hover:text-slate-900",
+                secondary: "bg-slate-100 text-slate-900 hover:bg-slate-100/80"
+            };
+            const sizes = {
+                default: "h-10 px-4 py-2",
+                sm: "h-9 rounded-md px-3",
+                icon: "h-10 w-10 flex items-center justify-center"
+            };
+            return (
+                <button className={`inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none ${variants[variant] || variants.default} ${sizes[size] || sizes.default} ${className}`} {...props}>
+                    {children}
+                </button>
+            );
+        };
+
+        const Switch = ({ checked, onCheckedChange, id, className="" }) => (
+            <button
+                id={id}
+                type="button"
+                role="switch"
+                aria-checked={checked}
+                onClick={() => onCheckedChange(!checked)}
+                className={`peer inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${checked ? 'bg-blue-600' : 'bg-slate-200'} ${className}`}
+            >
+                <span className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+        );
+
+        const Slider = ({ value, max, min, step, onValueChange, className = "" }) => (
+            <input
+                type="range"
+                min={min}
+                max={max}
+                step={step}
+                value={value[0]}
+                onChange={(e) => onValueChange([parseFloat(e.target.value)])}
+                className={`w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 ${className}`}
+            />
+        );
+
+        // --- 3. 辅助组件：带解释的行 ---
+        const TermRow = ({ label, selfValue, rentValue, desc, isHeader = false, isTotal = false, isSubTotal = false, colorClass="text-slate-700" }) => {
+            const [showDesc, setShowDesc] = useState(false);
+            
+            if (isHeader) {
+                return (
+                    <div className="grid grid-cols-10 gap-2 bg-slate-100 p-2 text-xs font-bold text-slate-600 text-center rounded-t-lg">
+                        <div className="col-span-4 text-left pl-2">{label}</div>
+                        <div className="col-span-3 text-orange-700">自住模式</div>
+                        <div className="col-span-3 text-blue-700">出租模式</div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className={`border-b border-slate-100 last:border-0 transition-colors ${showDesc ? 'bg-indigo-50/50' : ''}`}>
+                    <div className={`grid grid-cols-10 gap-2 p-2 text-sm items-center ${isTotal ? 'bg-slate-100 font-bold text-base py-3' : ''} ${isSubTotal ? 'bg-slate-50 font-semibold' : ''}`}>
+                        <div className="col-span-4 pl-2 flex items-center gap-1">
+                            <span className={colorClass}>{label}</span>
+                            {desc && (
+                                <button onClick={() => setShowDesc(!showDesc)} className="text-slate-400 hover:text-indigo-600 transition-colors">
+                                    <Icons.HelpCircle className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
+                        <div className={`col-span-3 text-center ${isTotal ? (parseFloat(selfValue?.replace(/,/g,'')) > 0 ? 'text-green-600' : 'text-red-600') : 'text-slate-600'}`}>
+                           {selfValue === '-' ? '-' : `$${selfValue}`}
+                        </div>
+                        <div className={`col-span-3 text-center ${isTotal ? (parseFloat(rentValue?.replace(/,/g,'')) > 0 ? 'text-green-600' : 'text-red-600') : 'text-slate-600'}`}>
+                            {rentValue === '-' ? '-' : `$${rentValue}`}
+                        </div>
+                    </div>
+                    {showDesc && (
+                        <div className="px-4 py-2 text-xs text-slate-500 bg-indigo-50 italic">
+                            {desc}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- 4. 主程序逻辑 ---
+        const PropertyCalculator = () => {
+            const defaultPresets = [{
+                id: '1', name: "嘉美中心", size: 363, pricePerSqFt: 8722, rentPerSqFt: 38, mgmtFeePerSqFt: 2.34,
+                stampDutyManual: 100, useAutoStampDuty: false, usePersonalAssessment: true, usageMode: 'rent', 
+                legalFee: 6000, agencyFeeRate: 1.0, loanRate: 3.2, loanYears: 30, loanRatio: 60, 
+                ratesRate: 5, govRentRate: 3, holdingYears: 3, appreciationRate: 0, rentGrowthRate: 2
+            }];
+
+            const [properties, setProperties] = useState(defaultPresets);
+            const [activeId, setActiveId] = useState('1');
+            const [inputs, setInputs] = useState(defaultPresets[0]);
+            const [results, setResults] = useState(null);
+            const [isDirty, setIsDirty] = useState(false);
+            const [showFormulas, setShowFormulas] = useState(true);
+            const [activeTab, setActiveTab] = useState("holding"); 
+
+            useEffect(() => {
+                const savedData = localStorage.getItem('hk_prop_calc_data_v19'); // Updated version
+                if (savedData) {
+                    try {
+                        const parsed = JSON.parse(savedData);
+                        if (parsed && parsed.length > 0) {
+                            // Migration for old data lacking agencyFeeRate or rentGrowthRate
+                            const migrated = parsed.map(p => ({
+                                ...p,
+                                agencyFeeRate: p.agencyFeeRate ?? 1.0,
+                                rentGrowthRate: p.rentGrowthRate ?? 2.0
+                            }));
+                            setProperties(migrated);
+                            setInputs(migrated[0]);
+                            setActiveId(migrated[0].id);
+                        }
+                    } catch (e) { console.error("Failed to load saved data"); }
+                }
+            }, []);
+
+            useEffect(() => { localStorage.setItem('hk_prop_calc_data_v19', JSON.stringify(properties)); }, [properties]);
+
+            const loadProperty = (id) => {
+                const prop = properties.find(p => p.id === id);
+                if (prop) { setActiveId(id); setInputs({ ...prop }); setIsDirty(false); }
+            };
+
+            const handleAddProperty = () => {
+                const newId = Date.now().toString();
+                const newProp = { ...inputs, id: newId, name: `${inputs.name} (复制)` };
+                const newProperties = [...properties, newProp];
+                setProperties(newProperties); setActiveId(newId); setInputs(newProp); setIsDirty(false);
+            };
+
+            const handleSave = () => {
+                const updatedProperties = properties.map(p => p.id === activeId ? inputs : p);
+                setProperties(updatedProperties); setIsDirty(false);
+            };
+
+            const handleDelete = () => {
+                if (properties.length <= 1) { alert("至少保留一个房产数据"); return; }
+                if (window.confirm(`确认删除 "${inputs.name}" 吗？`)) {
+                    const newProps = properties.filter(p => p.id !== activeId);
+                    setProperties(newProps); setActiveId(newProps[0].id); setInputs(newProps[0]); setIsDirty(false);
+                }
+            };
+
+            const handleInputChange = (e) => {
+                const { name, value } = e.target;
+                setInputs(prev => ({ ...prev, [name]: name === 'name' ? value : (parseFloat(value) || 0) }));
+                setIsDirty(true);
+            };
+
+            const calculateGovStampDuty = (price) => {
+                if (price <= 3000000) return 100;
+                if (price <= 3528240) return 100 + (price - 3000000) * 0.10;
+                if (price <= 4500000) return price * 0.015;
+                if (price <= 4935480) return 67500 + (price - 4500000) * 0.10;
+                if (price <= 6000000) return price * 0.0225;
+                if (price <= 6642860) return 135000 + (price - 6000000) * 0.10;
+                if (price <= 9000000) return price * 0.03;
+                if (price <= 10080000) return 270000 + (price - 9000000) * 0.10;
+                if (price <= 20000000) return price * 0.0375;
+                if (price <= 21739120) return 750000 + (price - 20000000) * 0.10;
+                return price * 0.0425;
+            };
+
+            useEffect(() => {
+                const { size, pricePerSqFt, rentPerSqFt, mgmtFeePerSqFt, stampDutyManual, useAutoStampDuty, usePersonalAssessment, usageMode, legalFee, agencyFeeRate, loanRate, loanYears, loanRatio, ratesRate, govRentRate, holdingYears, appreciationRate, rentGrowthRate } = inputs;
+
+                const price = size * pricePerSqFt;
+                const monthlyMarketRent = size * rentPerSqFt; 
+                const annualMarketRent = monthlyMarketRent * 12;
+                const monthlyMgmtFee = size * mgmtFeePerSqFt;
+                const mgmtFeeYear = monthlyMgmtFee * 12;
+                const agencyFeeManual = price * (agencyFeeRate / 100);
+
+                const calculatedStampDuty = calculateGovStampDuty(price);
+                const finalStampDuty = useAutoStampDuty ? calculatedStampDuty : stampDutyManual;
+                const ratesYear = annualMarketRent * (ratesRate / 100);
+                const govRentYear = annualMarketRent * (govRentRate / 100);
+                
+                // 贷款计算
+                const loanAmount = price * (loanRatio / 100);
+                const monthlyRate = (loanRate / 100) / 12;
+                const totalMonths = loanYears * 12;
+                
+                let monthlyPayment = 0;
+                if (monthlyRate > 0) {
+                    monthlyPayment = loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+                } else {
+                    monthlyPayment = loanAmount / totalMonths;
+                }
+                const annualPayment = monthlyPayment * 12;
+                const totalRepayment = monthlyPayment * totalMonths;
+                const totalInterestFullTerm = totalRepayment - loanAmount;
+
+                // 第一年数据
+                let totalInterest1stYear = 0;
+                let currentBal = loanAmount;
+                for(let i=0; i<12; i++){
+                    const interest = currentBal * monthlyRate;
+                    totalInterest1stYear += interest;
+                    currentBal = currentBal - (monthlyPayment - interest);
+                }
+                const principal1stYear = annualPayment - totalInterest1stYear;
+
+                // 模拟持有期数据
+                let sim_remainingLoan = loanAmount;
+                let sim_totalInterestPaid = 0;
+                let sim_totalPrincipalPaid = 0;
+                for(let m=0; m < holdingYears * 12; m++) {
+                    const interest = sim_remainingLoan * monthlyRate;
+                    const principal = monthlyPayment - interest;
+                    sim_totalInterestPaid += interest;
+                    sim_totalPrincipalPaid += principal;
+                    sim_remainingLoan -= principal;
+                }
+
+                // 退出计算 (Base Case)
+                const futurePrice = price * Math.pow(1 + appreciationRate / 100, holdingYears);
+                const sellingCostTotal = (futurePrice * 0.01) + 6000; 
+                const buyingCostTotal = finalStampDuty + legalFee + agencyFeeManual;
+                const netProceedsFromSale = futurePrice - sim_remainingLoan - sellingCostTotal;
+                const downPayment = price * (1 - loanRatio / 100);
+                const initialCashOut = downPayment + buyingCostTotal;
+                
+                // 资本利得分解
+                const capital_appreciation = futurePrice - price;
+                const capital_friction_cost = buyingCostTotal + sellingCostTotal;
+                const total_capital_profit = capital_appreciation - capital_friction_cost; 
+
+                // 1. 自住模式
+                const self_annual_holding_cost = mgmtFeeYear + ratesYear + govRentYear;
+                const self_total_holding_cost = self_annual_holding_cost * holdingYears;
+                const self_total_tax_save = Math.min(sim_totalInterestPaid, 100000 * holdingYears) * 0.15; 
+                const self_rental_benefit = annualMarketRent * holdingYears;
+                const self_operating_profit = self_rental_benefit - self_total_holding_cost - sim_totalInterestPaid + self_total_tax_save;
+                const self_total_profit = self_operating_profit + total_capital_profit;
+                const self_roi_annualized = initialCashOut > 0 ? (Math.pow((self_total_profit + initialCashOut) / initialCashOut, 1/holdingYears) - 1) * 100 : 0;
+
+                // 2. 出租模式
+                const rent_annual_net_assessable = Math.max(0, annualMarketRent - ratesYear) * 0.8;
+                let rent_total_tax = usePersonalAssessment ? Math.max(0, (rent_annual_net_assessable * holdingYears) - sim_totalInterestPaid) * 0.15 : (rent_annual_net_assessable * holdingYears) * 0.15;
+                const rent_total_income = annualMarketRent * holdingYears;
+                const rent_operating_profit = rent_total_income - self_total_holding_cost - sim_totalInterestPaid - rent_total_tax;
+                const rent_total_profit = rent_operating_profit + total_capital_profit;
+                const rent_roi_annualized = initialCashOut > 0 ? (Math.pow((rent_total_profit + initialCashOut) / initialCashOut, 1/holdingYears) - 1) * 100 : 0;
+
+                // 现金流 & FCF Forecast Loop
+                let fcf_positive_year = -1;
+                let fcf_breakeven_year = -1;
+                let cumulative_fcf = -initialCashOut;
+
+                // Loop 30 years to find FCF break even
+                for (let y = 1; y <= 30; y++) {
+                    const yearRent = annualMarketRent * Math.pow(1 + rentGrowthRate/100, y-1);
+                    const yearExp = (mgmtFeeYear + ratesYear + govRentYear) * Math.pow(1 + 0.02, y-1); // Assume 2% expense inflation
+                    
+                    // Simple tax calc for FCF projection (approx)
+                    const yearTax = usePersonalAssessment ? 0 : (yearRent - ratesYear) * 0.8 * 0.15; 
+                    
+                    const yearCashFlow = yearRent - yearExp - yearTax - annualPayment;
+                    
+                    cumulative_fcf += yearCashFlow;
+
+                    if (yearCashFlow > 0 && fcf_positive_year === -1) {
+                        fcf_positive_year = y;
+                    }
+                    if (cumulative_fcf > 0 && fcf_breakeven_year === -1) {
+                        fcf_breakeven_year = y;
+                    }
+                }
+
+                // Sensitivity Matrix Calculation
+                const sensitivityRates = [-20, -10, 0, 10, 20];
+                const sensitivityData = sensitivityRates.map(rate => {
+                    const s_futurePrice = price * Math.pow(1 + rate / 100, holdingYears); // Simple total appreciation not CAGR for simplicity of "What if price drops 20%"
+                    const s_sellingCost = (s_futurePrice * 0.01) + 6000;
+                    const s_capital_profit = (s_futurePrice - price) - (buyingCostTotal + s_sellingCost);
+                    
+                    const s_rent_profit = rent_operating_profit + s_capital_profit;
+                    const s_roi = initialCashOut > 0 ? (Math.pow((s_rent_profit + initialCashOut) / initialCashOut, 1/holdingYears) - 1) * 100 : 0;
+                    
+                    return { rate, price: s_futurePrice, profit: s_rent_profit, roi: s_roi };
+                });
+
+
+                // 现金流 Current Status
+                let propertyTax = 0, salaryTaxSave = 0;
+                if (usageMode === 'rent') {
+                    const netAssess = Math.max(0, annualMarketRent - ratesYear) * 0.8;
+                    propertyTax = usePersonalAssessment ? Math.max(0, netAssess - totalInterest1stYear) * 0.15 : netAssess * 0.15;
+                } else {
+                    salaryTaxSave = Math.min(totalInterest1stYear, 100000) * 0.15; 
+                }
+                const holdingCost = ratesYear + govRentYear + mgmtFeeYear + propertyTax;
+                const cash_outflow_monthly = monthlyPayment + monthlyMgmtFee + (ratesYear + govRentYear)/12;
+                const cash_flow_diff_monthly = monthlyMarketRent - cash_outflow_monthly;
+                const save_vs_renting_year = annualMarketRent - (totalInterest1stYear + holdingCost - salaryTaxSave);
+                
+                // --- 回报率计算 ---
+                const annualOperatingExpenses = mgmtFeeYear + ratesYear + govRentYear;
+                const grossYield = price > 0 ? (annualMarketRent / price) * 100 : 0;
+                const netYield = price > 0 ? ((annualMarketRent - annualOperatingExpenses) / price) * 100 : 0;
+                const cashOnCash = initialCashOut > 0 ? ((annualMarketRent - annualOperatingExpenses - annualPayment) / initialCashOut) * 100 : 0;
+                const wealthROE = initialCashOut > 0 ? (save_vs_renting_year / initialCashOut) * 100 : 0;
+
+                setResults({
+                    price, monthlyMarketRent, annualMarketRent, monthlyMgmtFee, mgmtFeeYear,
+                    finalStampDuty, calculatedStampDuty, ratesYear, govRentYear, propertyTax, salaryTaxSave,
+                    initialExpenses: initialCashOut, downPayment, loanAmount, annualPayment, monthlyPayment,
+                    holdingCost, principal1stYear, totalInterest1stYear, legalFee, agencyFeeManual,
+                    save_vs_renting_year, save_vs_renting_month: save_vs_renting_year / 12,
+                    cash_outflow_monthly, cash_flow_diff_monthly, totalRepayment, totalInterestFullTerm,
+                    futurePrice, sim_remainingLoan, netProceedsFromSale, sellingCostTotal, buyingCostTotal,
+                    self_total_profit, self_roi_annualized, self_operating_profit, 
+                    rent_total_profit, rent_roi_annualized, rent_operating_profit,
+                    total_capital_profit, 
+                    sim_totalPrincipalPaid, sim_totalInterestPaid,
+                    capital_appreciation, capital_friction_cost,
+                    self_total_holding_cost, self_total_tax_save, self_rental_benefit,
+                    rent_total_income, rent_total_tax,
+                    monthly_buy_burn: (totalInterest1stYear + holdingCost - salaryTaxSave) / 12,
+                    monthly_rent_burn: monthlyMarketRent,
+                    grossYield, netYield, cashOnCash, wealthROE,
+                    fcf_positive_year, fcf_breakeven_year, sensitivityData
+                });
+            }, [inputs]);
+
+            const formatMoney = (val) => val?.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            const formatPct = (val) => val?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+            const Formula = ({ text }) => (showFormulas ? <div className="text-[10px] text-slate-400 font-mono mt-0.5">{text}</div> : null);
+
+            return (
+                <div className="max-w-6xl mx-auto p-4 space-y-4 min-h-screen pb-20">
+                    <div className="flex justify-between items-center">
+                        <h1 className="text-2xl font-bold flex items-center gap-2 text-slate-800">
+                            <Icons.Building2 className="w-8 h-8 text-blue-600" /> 香港房产计算器
+                        </h1>
+                        <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border shadow-sm">
+                            <Switch id="show-formulas" checked={showFormulas} onCheckedChange={setShowFormulas} className="scale-75" />
+                            <Label htmlFor="show-formulas" className="text-xs text-slate-600 cursor-pointer flex items-center gap-1">
+                                {showFormulas ? <Icons.Eye className="w-3 h-3"/> : <Icons.EyeOff className="w-3 h-3"/>} 公式
+                            </Label>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        {properties.map(p => (
+                            <Button key={p.id} variant={activeId === p.id ? "default" : "outline"} onClick={() => loadProperty(p.id)} className={`whitespace-nowrap min-w-[100px] ${activeId === p.id ? 'border-blue-600 ring-2 ring-blue-200' : ''}`}>{p.name}</Button>
+                        ))}
+                        <Button variant="ghost" size="icon" onClick={handleAddProperty}><Icons.Plus className="w-5 h-5 text-blue-600" /></Button>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-lg shadow-sm border flex flex-col md:flex-row gap-4 items-end md:items-center justify-between">
+                        <div className="w-full md:w-1/3 space-y-1">
+                            <Label className="text-xs text-slate-500">房产名称</Label>
+                            <Input name="name" value={inputs.name} onChange={handleInputChange} className="font-bold text-lg h-10" />
+                        </div>
+                        <div className="flex gap-2 w-full md:w-auto">
+                            <Button onClick={handleSave} disabled={!isDirty} className={`flex-1 md:flex-none gap-2 ${isDirty ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-400 text-white'}`}>
+                                <Icons.Save className="w-4 h-4" /> {isDirty ? '保存修改' : '已保存'}
+                            </Button>
+                            <Button variant="destructive" size="icon" onClick={handleDelete} disabled={properties.length <= 1}><Icons.Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        <div className="lg:col-span-5 space-y-4">
+                            <div className="bg-white p-1 rounded-lg border shadow-sm flex">
+                                <button onClick={() => setInputs(p => ({...p, usageMode: 'rent'}))} className={`flex-1 py-2 text-sm font-medium rounded-md flex items-center justify-center gap-2 ${inputs.usageMode === 'rent' ? 'bg-blue-100 text-blue-700 shadow-sm' : 'text-slate-500 hover:bg-slate-50'}`}><Icons.Briefcase className="w-4 h-4" /> 投资收租</button>
+                                <button onClick={() => setInputs(p => ({...p, usageMode: 'self'}))} className={`flex-1 py-2 text-sm font-medium rounded-md flex items-center justify-center gap-2 ${inputs.usageMode === 'self' ? 'bg-orange-100 text-orange-700 shadow-sm' : 'text-slate-500 hover:bg-slate-50'}`}><Icons.User className="w-4 h-4" /> 自住</button>
+                            </div>
+
+                            <Card className="border-l-4 border-l-blue-500 shadow-sm">
+                                <CardHeader className="pb-3 bg-slate-50/50"><CardTitle className="text-lg flex items-center gap-2"><Icons.Home className="w-4 h-4" /> 核心数据</CardTitle></CardHeader>
+                                <CardContent className="grid grid-cols-2 gap-4 pt-4">
+                                    <div className="space-y-1"><Label className="text-blue-700">建筑面积 (尺)</Label><Input name="size" type="number" value={inputs.size} onChange={handleInputChange} className="font-bold" /></div>
+                                    <div className="space-y-1"><Label className="text-blue-700">平均尺价 (HKD)</Label><Input name="pricePerSqFt" type="number" value={inputs.pricePerSqFt} onChange={handleInputChange} className="font-bold" /></div>
+                                    <div className="col-span-2 bg-blue-50 p-3 rounded-md flex justify-between items-center">
+                                        <div><span className="text-sm text-blue-600">计算总房价:</span><Formula text={`${inputs.size}尺 × $${inputs.pricePerSqFt}/尺`} /></div>
+                                        <span className="text-xl font-bold text-blue-900">${formatMoney(results?.price)}</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="shadow-sm">
+                                <CardHeader className="pb-3"><CardTitle className="text-lg flex items-center gap-2"><Icons.DollarSign className="w-4 h-4" /> {inputs.usageMode === 'rent' ? '租金收入' : '市场租金'}</CardTitle></CardHeader>
+                                <CardContent className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1"><Label>预估尺租 (HKD)</Label><Input name="rentPerSqFt" type="number" value={inputs.rentPerSqFt} onChange={handleInputChange} /></div>
+                                    <div className="space-y-1"><Label>管理费/尺 (HKD)</Label><Input name="mgmtFeePerSqFt" type="number" value={inputs.mgmtFeePerSqFt} onChange={handleInputChange} /></div>
+                                    <div className="col-span-2 grid grid-cols-2 gap-4 bg-slate-100 p-2 rounded text-sm">
+                                        <div><span className="text-slate-500 block">月租金</span><span className="font-bold">${formatMoney(results?.monthlyMarketRent)}</span></div>
+                                        <div><span className="text-slate-500 block">月管理费</span><span className="font-bold">${formatMoney(results?.monthlyMgmtFee)}</span></div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="shadow-sm">
+                                <CardHeader className="pb-3"><CardTitle className="text-lg flex items-center gap-2"><Icons.Calculator className="w-4 h-4" /> 交易成本 & 税务</CardTitle></CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2 border p-3 rounded bg-slate-50">
+                                        <div className="flex justify-between items-center"><Label>印花税 (HKD)</Label><div className="flex items-center gap-2"><Label htmlFor="auto-stamp" className="text-xs text-slate-500">自动(Scale 2)</Label><Switch id="auto-stamp" checked={inputs.useAutoStampDuty} onCheckedChange={(c) => {setInputs(p=>({...p, useAutoStampDuty:c})); setIsDirty(true)}} /></div></div>
+                                        {inputs.useAutoStampDuty ? <div className="text-lg font-bold text-slate-700 bg-white border px-3 py-2 rounded">${formatMoney(results?.calculatedStampDuty)}</div> : <Input name="stampDutyManual" type="number" value={inputs.stampDutyManual} onChange={handleInputChange} />}
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1"><Label>律师费/杂费</Label><Input name="legalFee" type="number" value={inputs.legalFee} onChange={handleInputChange} /></div>
+                                        <div className="space-y-1">
+                                            <Label>代理佣金 (%)</Label>
+                                            <div className="relative">
+                                                <Input name="agencyFeeRate" type="number" step="0.1" value={inputs.agencyFeeRate} onChange={handleInputChange} />
+                                                <div className="absolute top-2.5 right-3 text-xs text-slate-400">${formatMoney(results?.agencyFeeManual)}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="shadow-sm">
+                                <CardHeader className="pb-3"><CardTitle className="text-lg flex items-center gap-2"><Icons.Percent className="w-4 h-4" /> 贷款设置</CardTitle></CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <div className="space-y-1"><Label className="text-xs">成数(%)</Label><Input name="loanRatio" type="number" value={inputs.loanRatio} onChange={handleInputChange} /></div>
+                                        <div className="space-y-1"><Label className="text-xs">年利率(%)</Label><Input name="loanRate" type="number" value={inputs.loanRate} onChange={handleInputChange} /></div>
+                                        <div className="space-y-1"><Label className="text-xs">年期</Label><Input name="loanYears" type="number" value={inputs.loanYears} onChange={handleInputChange} /></div>
+                                    </div>
+                                    <div className="bg-slate-100 p-3 rounded text-sm space-y-2">
+                                        <div className="flex justify-between"><span className="text-slate-600">贷款金额</span><span className="font-bold text-slate-900">${formatMoney(results?.loanAmount)}</span></div>
+                                        <div className="flex justify-between"><span className="text-slate-600">月供</span><span className="font-bold text-slate-900">${formatMoney(results?.monthlyPayment)}</span></div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <div className="lg:col-span-7">
+                            <div className="flex bg-slate-200 p-1 rounded-lg mb-4">
+                                <button onClick={() => setActiveTab('holding')} className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-md transition-all ${activeTab === 'holding' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><Icons.LayoutDashboard className="w-4 h-4" /> 持有分析</button>
+                                <button onClick={() => setActiveTab('exit')} className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-bold rounded-md transition-all ${activeTab === 'exit' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}><Icons.TrendingUp className="w-4 h-4" /> 卖房推演</button>
+                            </div>
+
+                            {activeTab === 'holding' && (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                    <Card className="bg-blue-50 border-blue-200 shadow-sm">
+                                        <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2 text-blue-800"><Icons.Coins className="w-5 h-5" /> 1. 首期资金准备</CardTitle></CardHeader>
+                                        <CardContent className="space-y-3">
+                                            <div className="flex justify-between items-end border-b border-blue-200 pb-2"><span className="text-sm text-blue-600 font-medium">需准备现金总额</span><span className="text-2xl font-bold text-blue-900">${formatMoney(results?.initialExpenses)}</span></div>
+                                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm pt-1">
+                                                <div className="flex justify-between text-slate-600"><span>首付 ({100 - inputs.loanRatio}%)</span><span className="font-medium">${formatMoney(results?.downPayment)}</span></div>
+                                                <div className="flex justify-between text-slate-600"><span>印花税</span><span className="font-medium">${formatMoney(results?.finalStampDuty)}</span></div>
+                                                <div className="flex justify-between text-slate-600"><span>代理佣金</span><span className="font-medium">${formatMoney(results?.agencyFeeManual)}</span></div>
+                                                <div className="flex justify-between text-slate-600"><span>律师费/杂费</span><span className="font-medium">${formatMoney(results?.legalFee)}</span></div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="shadow-sm border border-slate-200">
+                                        <CardHeader className="pb-2 border-b bg-slate-100"><CardTitle className="text-base flex items-center gap-2 text-slate-700"><Icons.Wallet className="w-4 h-4" /> 2. 月度现金流 (Cash Flow)</CardTitle></CardHeader>
+                                        <CardContent className="pt-4 space-y-3">
+                                            <div className="bg-slate-50 p-3 rounded-lg border flex items-center justify-between mt-2 mb-4">
+                                                <div className="text-sm font-medium text-slate-600">目前月度差额 (租-供-杂):</div>
+                                                <div className={`font-bold text-lg ${results?.cash_flow_diff_monthly >= 0 ? 'text-green-600' : 'text-red-600'}`}>{results?.cash_flow_diff_monthly >= 0 ? '+' : ''}${formatMoney(results?.cash_flow_diff_monthly)}</div>
+                                            </div>
+
+                                            <div className="border-t pt-3">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <div className="flex items-center gap-2 font-bold text-indigo-800"><Icons.Target className="w-4 h-4"/> FCF 预测 (自由现金流)</div>
+                                                    <div className="flex items-center gap-1"><span className="text-xs text-slate-500">假设年租金升幅:</span><Input className="w-16 h-6 text-xs text-right" type="number" value={inputs.rentGrowthRate} onChange={(e)=> {setInputs(p=>({...p, rentGrowthRate: parseFloat(e.target.value)||0})); setIsDirty(true)}} /> <span className="text-xs">%</span></div>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="bg-indigo-50 p-2 rounded text-center">
+                                                        <div className="text-xs text-indigo-500 mb-1">现金流转正 (Rent &gt; Costs)</div>
+                                                        <div className="text-lg font-bold text-indigo-700">
+                                                            {results?.cash_flow_diff_monthly > 0 ? "已转正 (Now)" : (results?.fcf_positive_year > 0 ? `第 ${results?.fcf_positive_year} 年` : "30年内未转正")}
+                                                        </div>
+                                                    </div>
+                                                    <div className="bg-indigo-50 p-2 rounded text-center">
+                                                        <div className="text-xs text-indigo-500 mb-1">累计回本 (Breakeven)</div>
+                                                        <div className="text-lg font-bold text-indigo-700">
+                                                            {results?.fcf_breakeven_year > 0 ? `第 ${results?.fcf_breakeven_year} 年` : "30年内未回本"}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="shadow-sm border-t-4 border-t-orange-400">
+                                        <CardHeader className="pb-2 border-b bg-slate-50"><CardTitle className="text-lg flex items-center gap-2"><Icons.Banknote className="w-5 h-5" /> 3. 长期财富账本 (Real Cost)</CardTitle></CardHeader>
+                                        <CardContent className="p-4 space-y-4">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <div className="text-xs font-bold text-orange-800 uppercase tracking-wider mb-1">买房真实消耗</div>
+                                                    <div className="text-xl font-bold text-orange-700">-${formatMoney(results?.monthly_buy_burn)}</div>
+                                                    <div className="text-xs text-slate-500 space-y-1 border-l-2 border-orange-100 pl-2">
+                                                        <div className="flex justify-between"><span>利息</span><span className="text-red-500">-${formatMoney(results?.totalInterest1stYear / 12)}</span></div>
+                                                        <div className="flex justify-between"><span>杂费</span><span className="text-red-500">-${formatMoney((results?.monthlyMgmtFee*12 + results?.ratesYear + results?.govRentYear)/12)}</span></div>
+                                                        <div className="flex justify-between pt-1 border-t border-dashed text-indigo-600 font-bold"><span>本金(强制储蓄)</span><span>${formatMoney(results?.monthlyPayment - results?.totalInterest1stYear/12)}</span></div>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2 border-l pl-4">
+                                                    <div className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">租房真实消耗</div>
+                                                    <div className="text-xl font-bold text-orange-700">-${formatMoney(results?.monthly_rent_burn)}</div>
+                                                </div>
+                                            </div>
+                                            <div className="bg-orange-50 p-3 rounded-lg border border-orange-100 grid grid-cols-2 gap-4">
+                                                <div><div className="text-xs font-medium text-orange-900 mb-1">每月积累</div><div className="text-xl font-bold text-orange-700">+${formatMoney(results?.save_vs_renting_month)}</div></div>
+                                                <div className="border-l border-orange-200 pl-4"><div className="text-xs font-medium text-orange-900 mb-1">每年积累</div><div className="text-xl font-bold text-orange-700">+${formatMoney(results?.save_vs_renting_year)}</div></div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            )}
+
+                            {activeTab === 'exit' && (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                    <Card className="shadow-sm border-2 border-indigo-600 overflow-hidden">
+                                        <CardHeader className="pb-3 bg-indigo-600 text-white"><CardTitle className="text-lg flex items-center gap-2"><Icons.Scale className="w-5 h-5" /> 退出策略 (卖房推演)</CardTitle></CardHeader>
+                                        <CardContent className="pt-4 space-y-6">
+                                            <div className="bg-indigo-50 p-3 rounded-lg space-y-4">
+                                                <div className="flex justify-between items-center"><Label className="text-indigo-900 font-bold">持有年限: {inputs.holdingYears} 年</Label></div>
+                                                <Slider value={[inputs.holdingYears]} max={30} min={1} step={1} onValueChange={(val) => {setInputs(p=>({...p, holdingYears:val[0]})); setIsDirty(true)}} className="py-2" />
+                                                <div className="flex justify-between items-center pt-2"><Label className="text-indigo-900 font-bold">年均涨幅: {inputs.appreciationRate}%</Label></div>
+                                                <Slider value={[inputs.appreciationRate]} max={10} min={-10} step={0.5} onValueChange={(val) => {setInputs(p=>({...p, appreciationRate:val[0]})); setIsDirty(true)}} className="py-2" />
+                                                <div className="text-xs text-indigo-600 text-right">{inputs.holdingYears}年后房价: ${formatMoney(results?.futurePrice)}</div>
+                                            </div>
+
+                                            {/* 敏感性分析矩阵 */}
+                                            <div className="border rounded-lg overflow-hidden">
+                                                <div className="bg-slate-800 text-white p-2 text-sm font-bold text-center">房价敏感度压力测试 ({inputs.holdingYears}年后)</div>
+                                                <div className="grid grid-cols-4 bg-slate-100 p-2 text-xs font-bold text-slate-600 text-center">
+                                                    <div>涨幅</div>
+                                                    <div>卖出价</div>
+                                                    <div>净利润</div>
+                                                    <div>年化(IRR)</div>
+                                                </div>
+                                                {results?.sensitivityData.map((row, idx) => (
+                                                    <div key={idx} className={`grid grid-cols-4 p-2 text-xs text-center border-t border-slate-100 ${row.rate === 0 ? 'bg-indigo-50 font-bold' : ''}`}>
+                                                        <div className={`${row.rate > 0 ? 'text-green-600' : 'text-red-600'}`}>{row.rate > 0 ? '+' : ''}{row.rate}%</div>
+                                                        <div className="text-slate-600">${formatMoney(row.price)}</div>
+                                                        <div className={`${row.profit > 0 ? 'text-green-600' : 'text-red-600'}`}>${formatMoney(row.profit)}</div>
+                                                        <div className={`${row.roi > 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPct(row.roi)}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="border rounded-lg overflow-hidden mt-4">
+                                                <div className="bg-slate-100 p-2 text-xs font-bold text-slate-600 text-center">当前设定详情分析</div>
+                                                <TermRow label="总利润 (A+B)" isTotal selfValue={formatMoney(results?.self_total_profit)} rentValue={formatMoney(results?.rent_total_profit)} desc="最终落袋的钱。" />
+                                                <TermRow label="A. 资本账 (买卖)" isSubTotal selfValue={formatMoney(results?.total_capital_profit)} rentValue={formatMoney(results?.total_capital_profit)} desc="仅计算买卖房产本身的盈亏。" />
+                                                <TermRow label="B. 运营账 (持有)" isSubTotal selfValue={formatMoney(results?.self_operating_profit)} rentValue={formatMoney(results?.rent_operating_profit)} desc="持有期间现金流总和。" />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<PropertyCalculator />);
+    </script>
+</body>
+</html>
